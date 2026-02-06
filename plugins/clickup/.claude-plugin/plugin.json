@@ -1,0 +1,8 @@
+{
+  "name": "clickup",
+  "version": "1.0.0",
+  "description": "ClickUp API integration via direct curl. Full access to 100+ endpoints without MCP dependency. Uses ~/.config/clickup/token for auth and .claude/clickup.local.md for per-project context.",
+  "author": {
+    "name": "Leopoldo Bini"
+  }
+}

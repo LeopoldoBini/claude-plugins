@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "leopoldo-plugins",
+  "description": "Custom Claude Code plugins for productivity, project management, and workflow automation",
+  "owner": {
+    "name": "Leopoldo Bini",
+    "email": "leobini@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "clickup",
+      "description": "Full ClickUp API integration via direct curl. 100+ endpoints without MCP dependency: tasks, time tracking, docs, comments, custom fields, and more. Per-project config via .claude/clickup.local.md.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Leopoldo Bini"
+      },
+      "source": "./plugins/clickup",
+      "category": "productivity"
+    }
+  ]
+}

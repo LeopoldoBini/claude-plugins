@@ -1,0 +1,48 @@
+---
+# ClickUp Project Configuration
+# Copy this file to your project's .claude/clickup.local.md and customize.
+#
+# This file provides project-specific context to the ClickUp plugin.
+# Claude reads it before making API calls to use the correct IDs and
+# follow project conventions.
+
+team_id: "TEAM_ID_HERE"
+space_id: "SPACE_ID_HERE"
+
+# Default lists for this project
+lists:
+  main: "LIST_ID_HERE"         # Primary task list
+  # backlog: "LIST_ID_HERE"    # Backlog list
+  # sprint: "LIST_ID_HERE"     # Current sprint
+
+# List aliases - friendly names for /cu:status and other commands
+list_aliases:
+  # impl: "901325162865"       # "Implementados"
+  # plan: "901325166246"       # "Plan implementacion"
+
+# Status mapping - map your workflow statuses
+# Used by commands to understand status flow
+status_map:
+  open: "to do"
+  active: "in progress"
+  done: "complete"
+  # blocked: "on hold"
+  # review: "review"
+
+# Default assignee (your ClickUp user ID)
+default_assignee: "USER_ID_HERE"
+---
+
+# Project Conventions
+
+## Workflow
+<!-- Describe your team's workflow and conventions here -->
+
+## Task Naming
+<!-- e.g., "[Module] Brief description" -->
+
+## Tags
+<!-- List common tags and their meanings -->
+
+## Custom Fields
+<!-- Document custom fields used in this project -->

@@ -1,0 +1,11 @@
+# Credentials
+token
+*.key
+*.secret
+
+# OS
+.DS_Store
+Thumbs.db
+
+# User-specific local configs
+clickup.local.md
