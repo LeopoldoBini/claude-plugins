@@ -1,0 +1,72 @@
+---
+# ADR Sync — Project Configuration
+# Copy this file to your project's .claude/adr-sync.local.md and customize.
+#
+# IMPORTANT: Add '.claude/*.local.md' to your .gitignore
+# This file is user-specific and should not be committed to the repository.
+#
+# This file tells the adr-sync plugin where to find ADRs and which
+# documentation files to keep in sync with architecture decisions.
+
+# Path to ADR directory (relative to project root)
+adr_path: "docs/architecture/decisions"
+
+# ADR filename pattern (glob)
+adr_pattern: "ADR-*.md"
+
+# Files to sync when an ADR is created/modified
+# The agent will cross-reference ADRs against these files and update them
+sync_targets:
+  - path: "CLAUDE.md"
+    description: "Project instructions and stack definition"
+    sections: ["Stack Tecnologico", "Ultima Actualizacion"]
+  - path: "docs/plan/MASTER-PLAN.md"
+    description: "Master implementation plan"
+    sections: ["Fases de Implementacion"]
+  - path: "docs/plan/PROGRESS.md"
+    description: "Progress tracking checklist"
+    sections: ["Implementacion"]
+  # - path: "docs/plan/exploration-index.md"
+  #   description: "Exploration index"
+  #   sections: []
+
+# Agent behavior
+auto_update: true          # true = agent updates files directly; false = report only
+mark_synced: true          # Add sync_status/last_synced to ADR frontmatter
+
+# ADR frontmatter fields managed by the plugin
+# These are added/updated automatically:
+#   sync_status: pending | synced
+#   last_synced: YYYY-MM-DD
+---
+
+# Project Architecture Context
+
+Describe your project's documentation structure here. This helps the agent
+understand what each file represents and how to update it.
+
+## Repository Structure
+
+<!-- Example:
+- CLAUDE.md: Project instructions, stack definition, conventions
+- docs/plan/MASTER-PLAN.md: Implementation phases with task checklists
+- docs/plan/PROGRESS.md: Completion tracking with checkboxes
+- docs/architecture/decisions/: ADR files (this plugin manages these)
+-->
+
+## ADR Conventions
+
+<!-- Example:
+- Format: ADR-NNN-titulo-kebab-case.md
+- Required for: library choices, design patterns, migration strategies, stack changes
+- Structure: Context → Decision → Consequences → Alternatives
+-->
+
+## Sync Rules
+
+<!-- Example:
+- When an ADR changes the tech stack, update the Stack table in CLAUDE.md
+- When an ADR adds implementation tasks, add them to MASTER-PLAN.md phases
+- When an ADR is created, mark it as completed in PROGRESS.md
+- Always update "Ultima Actualizacion" in CLAUDE.md
+-->
