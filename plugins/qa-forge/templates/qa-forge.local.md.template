@@ -1,0 +1,50 @@
+---
+# QA-Forge — Per-project configuration
+# Copy this file to: .claude/qa-forge.local.md (in your project root)
+
+# Required: Base URL of the application under test
+base_url: "http://localhost:3000"
+
+# Optional: Framework override (auto-detected if omitted)
+# Values: nextjs, react, vue, nuxt, svelte, sveltekit, angular, astro, remix
+# framework: nextjs
+
+# Optional: Authentication config
+# auth:
+#   login_url: "/login"
+#   credentials:
+#     email: "test@example.com"
+#     password: "testpass123"
+#   method: "form"  # form | api | cookie
+
+# Optional: Custom viewport breakpoints (defaults: 375, 414, 640, 768, 1024, 1280, 1536)
+# viewports: [375, 768, 1024, 1440]
+
+# Optional: Save reports to file
+# save_reports: true
+# report_dir: ".claude/qa-reports"
+
+# Optional: Routes to skip during testing
+# skip_routes:
+#   - "/api/*"
+#   - "/admin/*"
+#   - "/_next/*"
+---
+
+# Application Context
+
+Describe your application here. This helps QA-Forge understand what to test and how features should behave.
+
+## Key Flows
+
+- **User registration**: ...
+- **Login**: ...
+- **Main feature**: ...
+
+## Known Issues
+
+- List any known bugs or limitations that QA should be aware of
+
+## Special Instructions
+
+- Any specific testing instructions or areas of focus

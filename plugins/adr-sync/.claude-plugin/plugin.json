@@ -1,10 +1,8 @@
 {
   "name": "adr-sync",
   "version": "1.0.0",
-  "description": "Automatic ADR (Architecture Decision Record) consistency management. Detects ADR creation/modification, cross-references against project documentation, updates all affected files, and tracks sync status. Configurable per project via .claude/adr-sync.local.md.",
+  "description": "Automatic ADR consistency management. Detects ADR creation/modification, cross-references against project docs, updates all affected files, and tracks sync status with frontmatter flags. Includes PostToolUse hook, autonomous sync agent, manual review command, and passive architecture knowledge skill.",
   "author": {
-    "name": "Leopoldo Bini",
-    "email": "leobini@gmail.com"
-  },
-  "keywords": ["adr", "architecture", "documentation", "consistency", "sync"]
+    "name": "Leopoldo Bini"
+  }
 }

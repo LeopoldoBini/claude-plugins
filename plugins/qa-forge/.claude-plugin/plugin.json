@@ -1,0 +1,9 @@
+{
+  "name": "qa-forge",
+  "version": "1.0.0",
+  "description": "Autonomous QA testing plugin. Analyzes source code to understand features, generates exhaustive test plans (P0-P3), executes tests via Playwright MCP, and produces professional bug reports with screenshots and reproduction steps. Includes qa-planning and qa-execution skills, qa-operator agent, and per-project configuration.",
+  "author": {
+    "name": "Leopoldo Bini",
+    "email": "leobini@gmail.com"
+  }
+}
