@@ -89,8 +89,22 @@ The Playwright MCP server provides browser automation tools. Key patterns:
 
 ### Verification
 - `browser_snapshot` — Get the accessibility tree (to verify content/structure)
-- `browser_take_screenshot` — Visual evidence
+- `browser_take_screenshot` — Visual evidence. **Always pass `filename`** using the configured screenshot directory (see below).
 - `browser_evaluate` — Run JavaScript (check console, verify state)
+
+### Screenshot Output Directory
+
+Before taking any screenshots, check for `.claude/qa-forge.local.md` in the project root. If it exists and defines `screenshot_dir`, use that as the prefix for all screenshot filenames.
+
+```markdown
+# Example .claude/qa-forge.local.md
+screenshot_dir: qa/assets
+```
+
+Filename convention: `<screenshot_dir>/TEST-<NN>-<slug>.png`
+Example: `qa/assets/TEST-01-login-page.png`
+
+If no local config exists, default to saving screenshots in the project root.
 
 ### Viewport
 - `browser_resize` — Change viewport dimensions for responsive testing
