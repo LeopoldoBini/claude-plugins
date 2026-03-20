@@ -1,6 +1,6 @@
 ---
 name: adr-consistency
-description: This skill should be used when the user asks to "sync ADRs", "process ADR changes", "check ADR consistency", "update docs from ADR", "verify ADR sync status", mentions "adr-sync plugin" or "sync_status", asks to "propagate architecture decisions to documentation", or works with ADR frontmatter fields like sync_status and last_synced.
+description: Use this skill to synchronize Architecture Decision Records (ADRs) with project documentation. Manages the ADR sync lifecycle — detecting pending ADRs, parsing decisions, updating target files (CLAUDE.md, MASTER-PLAN.md, PROGRESS.md), and marking ADRs as synced via frontmatter (sync_status, last_synced). Use it when ADRs are created or modified, when checking if documentation reflects current architecture decisions, or when propagating architecture decisions across project files.
 ---
 
 # ADR Consistency Management

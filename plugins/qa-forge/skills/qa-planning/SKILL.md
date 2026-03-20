@@ -1,6 +1,6 @@
 ---
 name: qa-planning
-description: This skill should be used when the user asks to "plan QA tests", "create a test plan", "analyze features for testing", "generate test cases", "QA planning", "what should we test", "test strategy", "plan QA for this feature", "review testable features", mentions "qa-forge planning", "P0-P3 tests", "test coverage plan", or when a command needs to analyze source code to generate a structured QA test plan before execution.
+description: Use this skill to analyze source code and generate a structured QA test plan before any browser testing begins. Reads routes, components, validation schemas, and API endpoints to produce prioritized test cases (P0-P3) with concrete steps, expected results, and verification methods. Use it when the user wants to know what to test, needs a test strategy, asks for test case generation, wants test coverage analysis, or needs a test plan document — all based on reading code, not executing tests. This skill does NOT open browsers, run Playwright, take screenshots, or execute tests — for that, use qa-execution instead.
 ---
 
 # QA Planning — Strategic Test Plan Generation

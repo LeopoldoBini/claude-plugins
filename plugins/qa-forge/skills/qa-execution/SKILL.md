@@ -1,6 +1,6 @@
 ---
 name: qa-execution
-description: This skill should be used when the user asks to "execute QA tests", "run tests with Playwright", "test the application", "run QA", "execute test plan", "browser testing", "test this URL", "check this page", "run responsive tests", mentions "qa-forge execution", "Playwright MCP testing", or when a command or agent needs to execute QA tests against a running web application using Playwright MCP tools.
+description: Use this skill to execute QA tests against a running web application using Playwright MCP browser tools. Navigates pages, clicks elements, fills forms, takes screenshots, checks console errors, and tests responsive layouts at multiple breakpoints. Use it when the user wants to actually test a live application in a browser, run a previously created test plan, verify behavior by interacting with a URL, take screenshots of bugs, test responsive design, or execute specific test cases. Requires a running application URL and produces a pass/fail report with screenshot evidence. This skill does NOT analyze source code or generate test plans — for that, use qa-planning instead.
 ---
 
 # QA Execution — Playwright MCP Testing Methodology
