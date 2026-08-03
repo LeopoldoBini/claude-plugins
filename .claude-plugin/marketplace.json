@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "leopoldo-plugins",
+  "name": "leo-tools",
   "description": "Custom Claude Code plugins for productivity, project management, and workflow automation",
   "owner": {
     "name": "Leopoldo Bini",
