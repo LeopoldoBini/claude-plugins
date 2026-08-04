@@ -1,0 +1,9 @@
+{
+  "name": "yt-transcript",
+  "version": "1.1.0",
+  "description": "Transcript de videos de YouTube a un archivo central con índice y resumen en español con timestamps anclados. Captions vía yt-dlp, con fallback a Whisper local cuando el video no tiene subtítulos.",
+  "author": {
+    "name": "Leopoldo Bini",
+    "email": "raul.leopoldobini@gmail.com"
+  }
+}

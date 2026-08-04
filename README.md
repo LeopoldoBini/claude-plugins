@@ -1,12 +1,22 @@
-# Claude Plugins - Leopoldo Bini
+# leo-tools — Claude Code plugins de Leopoldo Bini
 
-Custom Claude Code plugins for productivity and workflow automation.
+Utilidades **standalone**: cada plugin resuelve un problema por su cuenta y se instala suelto,
+sin depender del resto del stack. Lo que solo tiene sentido junto con el pipeline AFK vive en
+[`leo-stack`](https://github.com/LeopoldoBini/leo-stack), no acá.
 
 ## Plugins
 
-| Plugin | Description | Category |
-|--------|-------------|----------|
-| **[clickup](#clickup)** | Full ClickUp API integration via direct curl (100+ endpoints) | Productivity |
+| Plugin | Qué hace | Categoría |
+|--------|----------|-----------|
+| **[clickup](#clickup)** | Integración completa con la API de ClickUp vía curl (100+ endpoints), sin MCP | Productividad |
+| **adr-sync** | Mantiene los ADR consistentes con el resto de la documentación del proyecto | Documentación |
+| **qa-forge** | QA autónomo: plan de pruebas P0-P3 sobre el código, ejecución vía Playwright y reporte de bugs | Testing |
+| **interface-lens** | Psicología UX con brújula ética: `/ui-judge`, `/ux-design`, `/dark-pattern-scan` | Diseño |
+| **memory-flow** | `/revisar_memoria` — barrido batch de la memoria del proyecto, con graduaciones propuestas | Productividad |
+| **yt-transcript** | `/yt-transcript` — transcript de YouTube a un archivo central, con resumen e índice | Productividad |
+| **voice-checkpoint** | `/analizar` — checkpoint de comprensión para dictado por voz, antes de tocar nada | Productividad |
+
+Instalación: `/plugin install <plugin>@leo-tools`, o `/plugin > Discover`.
 
 ---
 
@@ -64,7 +74,7 @@ plugins/clickup/
 ### Installation
 
 ```bash
-/plugin install clickup@leopoldo-plugins
+/plugin install clickup@leo-tools
 ```
 
 Or browse in `/plugin > Discover`.
@@ -98,7 +108,7 @@ echo 'CLICKUP_TEAM_ID=YOUR_TEAM_ID' > ~/.config/clickup/config.env
 Copy the template and customize with your project's space/list IDs:
 
 ```bash
-cp ~/.claude/plugins/marketplaces/leopoldo-plugins/plugins/clickup/templates/clickup.local.md.template \
+cp ~/.claude/plugins/marketplaces/leo-tools/plugins/clickup/templates/clickup.local.md.template \
    your-project/.claude/clickup.local.md
 ```
 
@@ -139,4 +149,4 @@ The plugin looks for your token in this order:
 1. Create `plugins/your-plugin/` with the [standard structure](https://code.claude.com/docs/en/plugins)
 2. Add an entry to `.claude-plugin/marketplace.json`
 3. Commit and push
-4. On your machine: `cd ~/.claude/plugins/marketplaces/leopoldo-plugins && git pull`
+4. On your machine: `cd ~/.claude/plugins/marketplaces/leo-tools && git pull`

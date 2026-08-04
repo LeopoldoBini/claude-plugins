@@ -1,22 +1,12 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "leo-tools",
-  "description": "Custom Claude Code plugins for productivity, project management, and workflow automation",
+  "description": "Utilidades standalone de Claude Code: cada plugin resuelve un problema por su cuenta, sin depender del resto del stack. Gestión de proyectos, QA, documentación, UX y productividad.",
   "owner": {
     "name": "Leopoldo Bini",
     "email": "leobini@gmail.com"
   },
   "plugins": [
-    {
-      "name": "clickup",
-      "description": "Full ClickUp API integration via direct curl. 100+ endpoints without MCP dependency: tasks, time tracking, docs, comments, custom fields, and more. Per-project config via .claude/clickup.local.md.",
-      "version": "1.0.0",
-      "author": {
-        "name": "Leopoldo Bini"
-      },
-      "source": "./plugins/clickup",
-      "category": "productivity"
-    },
     {
       "name": "adr-sync",
       "description": "Automatic ADR consistency management. Detects ADR creation/modification, cross-references against project docs, updates all affected files, and tracks sync status with frontmatter flags. Includes PostToolUse hook, autonomous sync agent, manual review command, and passive architecture knowledge skill.",
@@ -28,6 +18,36 @@
       "category": "documentation"
     },
     {
+      "name": "clickup",
+      "description": "Full ClickUp API integration via direct curl. 100+ endpoints without MCP dependency: tasks, time tracking, docs, comments, custom fields, and more. Per-project config via .claude/clickup.local.md.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Leopoldo Bini"
+      },
+      "source": "./plugins/clickup",
+      "category": "productivity"
+    },
+    {
+      "name": "interface-lens",
+      "description": "Psicología UX con brújula ética. Tres skills de invocación explícita — /ui-judge audita una interfaz contra 28 principios en 6 familias, /ux-design propone flujos declarando principios y guardas, /dark-pattern-scan caza patrones oscuros antes de shippear.",
+      "version": "1.1.0",
+      "author": {
+        "name": "Leopoldo Bini"
+      },
+      "source": "./plugins/interface-lens",
+      "category": "design"
+    },
+    {
+      "name": "memory-flow",
+      "description": "Barrido batch de memoria — /revisar_memoria clasifica las memorias por-archivo (vigente, stale, graduable, obsoleta, fusionable) y propone graduaciones a CLAUDE.md/CONTEXT.md. Solo reporta; aplica con OK explícito del usuario.",
+      "version": "2.1.0",
+      "author": {
+        "name": "Leopoldo Bini"
+      },
+      "source": "./plugins/memory-flow",
+      "category": "productivity"
+    },
+    {
       "name": "qa-forge",
       "description": "Autonomous QA testing plugin. Analyzes source code to understand features, generates exhaustive test plans (P0-P3), executes tests via Playwright MCP, and produces professional bug reports with screenshots and reproduction steps. Includes qa-planning and qa-execution skills, qa-operator agent, and per-project configuration.",
       "version": "1.0.0",
@@ -37,6 +57,26 @@
       },
       "source": "./plugins/qa-forge",
       "category": "testing"
+    },
+    {
+      "name": "voice-checkpoint",
+      "description": "Checkpoint pre-ejecución para dictado por voz: /analizar reformula qué entendió y expone las zonas grises antes de tocar un solo archivo.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Leopoldo Bini"
+      },
+      "source": "./plugins/voice-checkpoint",
+      "category": "productivity"
+    },
+    {
+      "name": "yt-transcript",
+      "description": "Transcript de videos de YouTube a un archivo central con índice y resumen en español con timestamps anclados. Captions vía yt-dlp, con fallback a Whisper local cuando el video no tiene subtítulos.",
+      "version": "1.1.0",
+      "author": {
+        "name": "Leopoldo Bini"
+      },
+      "source": "./plugins/yt-transcript",
+      "category": "productivity"
     }
   ]
 }

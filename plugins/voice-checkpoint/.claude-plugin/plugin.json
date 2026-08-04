@@ -1,0 +1,9 @@
+{
+  "name": "voice-checkpoint",
+  "version": "1.0.0",
+  "description": "Checkpoint pre-ejecución para dictado por voz: /analizar reformula qué entendió y expone las zonas grises antes de tocar un solo archivo.",
+  "author": {
+    "name": "Leopoldo Bini",
+    "email": "raul.leopoldobini@gmail.com"
+  }
+}
