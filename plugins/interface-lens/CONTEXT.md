@@ -1,7 +1,11 @@
 # CONTEXT.md — lenguaje compartido de interface-lens
 
-Glosario canónico del dominio. Las cuatro skills razonan con este modelo mental; los
+Glosario canónico del dominio. Las cinco skills razonan con este modelo mental; los
 términos de acá son los únicos nombres válidos para estos conceptos.
+
+`/glow-up` es la excepción parcial: **aplica** en vez de juzgar, así que usa estos
+términos para decidir qué edita, pero no los reporta. Sus reglas de ejecución están en
+`references/craft.md`.
 
 ## El bucle (estructura temporal)
 

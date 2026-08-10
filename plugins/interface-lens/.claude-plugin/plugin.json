@@ -1,7 +1,7 @@
 {
   "name": "interface-lens",
-  "version": "1.2.0",
-  "description": "Psicología UX con brújula ética. Cuatro skills de invocación explícita: /ui-judge audita una interfaz contra 37 principios en 7 familias, /ux-design propone flujos con guardas, /ab-variant produce el par A|B de una pantalla, /dark-pattern-scan caza patrones oscuros.",
+  "version": "1.3.0",
+  "description": "Psicología UX aplicada al código: /glow-up deja una vista hermosa y más usable, /ab-variant produce su par A|B, /ui-judge la audita contra 37 principios, /ux-design propone el flujo, /dark-pattern-scan caza patrones oscuros.",
   "author": {
     "name": "Leopoldo Bini",
     "email": "raul.leopoldobini@gmail.com"

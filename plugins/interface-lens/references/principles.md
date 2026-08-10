@@ -60,6 +60,9 @@ Este catálogo es el lenguaje compartido de las cuatro skills (`/ui-judge`, `/ux
 
 ## E · Cognición y legibilidad — el eje "superior" (`clarity`)
 
+Cómo se ejecutan estos cinco en código (escala tipográfica, ritmo de espaciado,
+contraste, estados, movimiento): `craft.md`.
+
 | Principio | Peso | Fn | Ética | Definición |
 |---|:--:|:--:|:--:|---|
 | **Efecto Estética-Usabilidad** | 4 | J D | 🟢 | Lo bello se percibe como más usable y perdona errores menores. La estética es funcional. |

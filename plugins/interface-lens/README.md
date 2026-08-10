@@ -9,16 +9,20 @@ prueba del arrepentimiento de Nir Eyal.
 La psicología del enganche (bucle disparador→acción→recompensa→inversión, dopamina,
 recompensas variables) es un **motor** que sirve para dos fines opuestos: capturar al
 usuario o servirlo. Este plugin encapsula el motor como conocimiento de referencia y
-pone el juicio de dirección en el centro de las cuatro skills.
+pone el juicio de dirección en el centro de las cinco skills.
 
-## Skills (cuatro verbos, invocación explícita)
+## Skills (cinco verbos, invocación explícita)
+
+Una sola de las cinco **edita el código**: `/glow-up`. Es la puerta de entrada — el
+resto son para cuando querés juzgar, diseñar, testear o auditar antes de shippear.
 
 | Skill | Verbo | Qué hace |
 |---|---|---|
+| `/glow-up` | **Aplicar** | Le pasás una vista y la deja hermosa y más usable, editando el código: adopta los tokens y componentes del proyecto, aplica las diez reglas de craft visual y los siete lugares del pase funcional, y verifica con screenshot del antes y el después. Sin score ni diagnóstico. |
 | `/ui-judge` | **Juzgar** | Audita screenshot/URL/código contra 37 principios en 7 familias (A–G). Hallazgos con evidencia concreta, score por familia, banderas de dark patterns, fixes priorizados. |
 | `/ux-design` | **Diseñar** | Propone flujos mapeados al bucle, declarando qué principio usa cada decisión y por qué sirve al usuario. Guardas éticas y trade-offs obligatorios. |
 | `/ab-variant` | **Variar** | Convierte una pantalla de decisión en un par A|B: nombra la pregunta que le hace al usuario, la canjea por una más fácil y deriva deltas mínimos con principio, gate ético e implementación. |
-| `/dark-pattern-scan` | **Construir** | Escaneo adversarial pre-ship: rastrea flujos (suscripción, checkout, consentimiento), mide asimetría de fricción entrada/salida, reporte pasa/falla con evidencia por línea. |
+| `/dark-pattern-scan` | **Auditar** | Escaneo adversarial pre-ship: rastrea flujos (suscripción, checkout, consentimiento), mide asimetría de fricción entrada/salida, reporte pasa/falla con evidencia por línea. |
 
 ## Estructura
 
@@ -29,8 +33,9 @@ interface-lens/
     principles.md            ← catálogo de 37 principios (familias A–G)
     dark-patterns.md         ← taxonomía operativa con señales de código por patrón
     ab-pairs.md              ← método de la familia G: la pregunta, el canje, los deltas
+    craft.md                 ← cómo se ve una UI terminada: las diez reglas de ejecución
   skills/
-    ui-judge/  ux-design/  ab-variant/  dark-pattern-scan/
+    glow-up/  ui-judge/  ux-design/  ab-variant/  dark-pattern-scan/
 ```
 
 ## Principios de diseño del plugin
@@ -43,9 +48,10 @@ interface-lens/
 
 ## Vecinos
 
-Complementa (no solapa) a `ui-ux-pro-max` (design intelligence visual: estilos,
-paletas, layout): ese cubre *cómo se ve*; interface-lens cubre *cómo se comporta y
-su ética*.
+`ui-ux-pro-max` (marketplace de terceros) **genera un sistema visual desde cero**:
+paletas, tipografías y estilo para un proyecto que todavía no tiene ninguno. `craft.md`
+va al revés: **adopta el sistema que el proyecto ya tiene** y lo ejecuta bien. Si
+arrancás de cero, el primero; si tenés una app andando, `/glow-up`.
 
 ## Origen
 
