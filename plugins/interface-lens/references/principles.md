@@ -1,11 +1,11 @@
 # Catálogo de principios — base de conocimiento de interface-lens
 
-28 principios en 6 familias funcionales. Organizados por su **rol en el sistema de
+37 principios en 7 familias funcionales. Organizados por su **rol en el sistema de
 atención**, no alfabéticamente: la familia dice *para qué sirve* el principio.
 
-Este catálogo es el lenguaje compartido de las tres skills (`/ui-judge`, `/ux-design`,
-`/dark-pattern-scan`). El modelo mental que las conecta (bucle + eje ético) está en
-`CONTEXT.md` del plugin.
+Este catálogo es el lenguaje compartido de las cuatro skills (`/ui-judge`, `/ux-design`,
+`/dark-pattern-scan`, `/ab-variant`). El modelo mental que las conecta (bucle + eje
+ético) está en `CONTEXT.md` del plugin.
 
 ## Cómo leer cada entrada
 
@@ -78,14 +78,32 @@ Este catálogo es el lenguaje compartido de las tres skills (`/ui-judge`, `/ux-d
 | **Nudge vs. Sludge** | 3 | J D | 🟢 | Nudge facilita la decisión que le conviene al usuario; sludge estorba la salida. Misma técnica, intención opuesta. |
 | **Time-well-spent · diseño humano** | 4 | J D | 🟢 | Norte alternativo al "tiempo en app": ¿el usuario logró su objetivo y se fue mejor? Métrica superior. |
 
+## G · Decisión y conversión — el momento de elegir (`decision`)
+
+Actúan en el instante en que el usuario decide: qué número ve primero, cuánto trabajo
+mental le cuesta comparar y qué pregunta se hace antes de tocar el botón. El método que
+los opera —**el par**, **la pregunta**, **el canje**— vive en `ab-pairs.md`.
+
+| Principio | Peso | Fn | Ética | Definición |
+|---|:--:|:--:|:--:|---|
+| **Sesgo del default · smart defaults** | 5 | J D B | 🟡 | Un valor pre-seleccionado casi nunca se toca: se lee como recomendación. Muta la tarea de *completar desde cero* a *escanear y ajustar*. |
+| **Anclaje · efecto contraste** | 5 | J D | 🔴 | Ningún número se juzga en absoluto, sino contra el primero que se vio. El ancla la elegís vos — o la elige el usuario contra vos. |
+| **Rango = duda** | 4 | J B | 🟢 | Frente a "13–17" nadie estima 15: agarra el número alto y multiplica los "y si". Un número exacto se evalúa; un rango se rumia. |
+| **Facilidad evaluativa** | 4 | J D | 🟢 | Cuanto menos trabajo mental cuesta comparar las opciones, más probable es que se elija alguna en vez de ninguna. |
+| **Especificidad = confianza** | 4 | J D | 🟢 | "En dos taps", "en 23 minutos", "5 noches": un número cierra las preguntas que una promesa vaga deja abiertas. |
+| **Sesgo de transparencia** | 4 | J D | 🟢 | Revelar de antemano un costo o riesgo futuro **sube** la confianza en vez de bajarla (avisar el día 5 que el día 7 se cobra). |
+| **Reciprocidad · valor antes del pedido** | 4 | D | 🟢 | Entregar algo genuinamente útil antes de pedir signup o pago crea deuda psicológica (Cialdini). Un resultado borroneado detrás de un muro no la crea: la gasta. |
+| **Efecto IKEA · endowment** | 4 | D | 🟡 | Lo que el usuario armó vale más para él. Si construyó algo antes de registrarse, irse deja de ser *saltear un formulario* y pasa a ser *abandonar lo mío*. |
+| **Consistencia con el compromiso** | 3 | D | 🟡 | Recordar en pantalla la decisión ya tomada encoge la que falta: "ya elegí destino, solo falta qué auto". |
+
 ---
 
 ## Regla de oro del catálogo
 
 Casi todos los principios de peso alto (recompensas variables, aversión a la pérdida,
-push) viven del lado corruptible del eje ético. **La técnica es neutral; el juicio lo
-aporta la prueba del arrepentimiento.** Ese filtro es lo que ninguna "lista de leyes
-UX" incluye — y es la ventaja de este plugin.
+push, anclaje) viven del lado corruptible del eje ético. **La técnica es neutral; el
+juicio lo aporta la prueba del arrepentimiento.** Ese filtro es lo que ninguna "lista
+de leyes UX" incluye — y es la ventaja de este plugin.
 
 ## Fuentes
 
@@ -93,3 +111,6 @@ UX" incluye — y es la ventaja de este plugin.
 - [The Hooked Model](https://www.nirandfar.com/how-to-manufacture-desire/) — Nir Eyal
 - BJ Fogg — Behavior Model (B=MAP), Stanford Behavior Design Lab
 - Robert Cialdini — *Influence*, principios de persuasión
+- Familia G: Iyengar & Lepper (paradoja de la elección), Nunes & Drèze (goal-gradient
+  dotado), Kahneman & Tversky (prospect theory, anclaje), Norton/Mochon/Ariely (efecto
+  IKEA), más los dos videos de uxpeak citados en `ab-pairs.md`.

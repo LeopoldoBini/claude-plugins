@@ -1,6 +1,6 @@
 ---
 name: ui-judge
-description: Audita una interfaz (screenshot, URL o código) contra 28 principios de psicología UX en 6 familias más el eje ético. Devuelve hallazgos anclados a evidencia, score por familia, banderas de dark patterns y fixes priorizados.
+description: Audita una interfaz (screenshot, URL o código) contra 37 principios de psicología UX en 7 familias más el eje ético. Devuelve hallazgos anclados a evidencia, score por familia, banderas de dark patterns y fixes priorizados.
 disable-model-invocation: true
 ---
 
@@ -15,7 +15,7 @@ el filtro ético que las listas de heurísticas no tienen.
 Leé estos tres archivos ANTES de mirar el input (son la rúbrica):
 
 1. `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md` — bucle, eje ético, escalas de severidad/confianza
-2. `${CLAUDE_PLUGIN_ROOT}/references/principles.md` — las 6 familias A–F
+2. `${CLAUDE_PLUGIN_ROOT}/references/principles.md` — las 7 familias A–G
 3. `${CLAUDE_PLUGIN_ROOT}/references/dark-patterns.md` — taxonomía operativa
 
 ## Paso 1 — Clasificar el input y declarar límites
@@ -30,9 +30,9 @@ Si el usuario no aclaró el **contexto de la tarea del usuario final** (¿qué v
 lograr la persona a esta pantalla?), preguntalo en UNA sola pregunta antes de auditar
 — sin tarea de referencia no hay veredicto, solo opinión estética.
 
-## Paso 2 — Auditar por familia (A–F)
+## Paso 2 — Auditar por familia (A–G)
 
-Recorré las 6 familias en orden. Por cada familia, buscá violaciones Y aciertos
+Recorré las 7 familias en orden. Por cada familia, buscá violaciones Y aciertos
 (los aciertos importan: el reporte no es una lista de defectos, es un juicio).
 
 **Regla anti-vaguedad (obligatoria):** cada hallazgo DEBE tener:
@@ -44,6 +44,12 @@ Recorré las 6 familias en orden. Por cada familia, buscá violaciones Y acierto
 
 Descartá todo hallazgo que no pueda cumplir la regla. Menos hallazgos con evidencia
 valen más que muchos genéricos — la precisión del juicio es la reputación de la skill.
+
+**Si la pantalla pide una decisión** (paywall, checkout, onboarding, ficha de producto,
+selector de opciones), la familia G se audita con el método de `references/ab-pairs.md`:
+nombrá **la pregunta** que cada elemento le hace al usuario y auditá los siete lugares
+del delta. El fix de un hallazgo G es el canje por la pregunta fácil; el par completo lo
+produce `/ab-variant`.
 
 ## Paso 3 — Filtro ético (familia F sobre todo lo demás)
 
@@ -66,7 +72,7 @@ Estructura de salida (en el chat; NADA de artifacts salvo pedido explícito):
 
 ## Score por familia
 | Familia | Score /10 | Nota breve |
-(A–F; la familia F puede VETAR: con un dark pattern confirmado el global ≤ 4)
+(A–G; la familia F puede VETAR: con un dark pattern confirmado el global ≤ 4)
 **Global: N/10** (promedio ponderado por peso de los principios evaluables)
 
 ## Hallazgos (rankeados por severidad)

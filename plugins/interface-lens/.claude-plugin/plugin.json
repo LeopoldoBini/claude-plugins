@@ -1,7 +1,7 @@
 {
   "name": "interface-lens",
-  "version": "1.1.0",
-  "description": "Psicología UX con brújula ética. Tres skills de invocación explícita — /ui-judge audita una interfaz contra 28 principios en 6 familias, /ux-design propone flujos declarando principios y guardas, /dark-pattern-scan caza patrones oscuros antes de shippear.",
+  "version": "1.2.0",
+  "description": "Psicología UX con brújula ética. Cuatro skills de invocación explícita: /ui-judge audita una interfaz contra 37 principios en 7 familias, /ux-design propone flujos con guardas, /ab-variant produce el par A|B de una pantalla, /dark-pattern-scan caza patrones oscuros.",
   "author": {
     "name": "Leopoldo Bini",
     "email": "raul.leopoldobini@gmail.com"

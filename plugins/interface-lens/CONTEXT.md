@@ -1,11 +1,11 @@
 # CONTEXT.md — lenguaje compartido de interface-lens
 
-Glosario canónico del dominio. Las tres skills razonan con este modelo mental; los
+Glosario canónico del dominio. Las cuatro skills razonan con este modelo mental; los
 términos de acá son los únicos nombres válidos para estos conceptos.
 
 ## El bucle (estructura temporal)
 
-Los 28 principios del catálogo **no son una lista: son un bucle** que se recarga solo.
+Los 37 principios del catálogo **no son una lista: son un bucle** que se recarga solo.
 Ordena *cuándo* actúa cada principio.
 
 ```
@@ -19,6 +19,8 @@ Ordena *cuándo* actúa cada principio.
 
    Familia E (claridad/legibilidad) sostiene TODO el bucle.
    Familia F (ética) decide su DIRECCIÓN.
+   Familia G (decisión) opera en el instante del tap, entre DISPARADOR y ACCIÓN:
+   es la que decide si el bucle arranca alguna vez.
 ```
 
 ## El eje ético (dirección)
@@ -38,7 +40,12 @@ o **capturarlo**.
 | Término | Definición | No confundir con |
 |---|---|---|
 | **Bucle** | disparador→acción→recompensa→inversión (Fogg/Eyal). La unidad de análisis de un flujo. | "funnel" (embudo de conversión, mide al negocio; el bucle mide al hábito) |
-| **Familia A–F** | Las 6 familias del catálogo: A disparadores, B acción/fricción, C recompensa, D inversión, E claridad, F ética. | — |
+| **Familia A–G** | Las 7 familias del catálogo: A disparadores, B acción/fricción, C recompensa, D inversión, E claridad, F ética, G decisión. | — |
+| **La pregunta** | Lo que un elemento de la pantalla le hace resolver al usuario, en primera persona de él ("¿vale 19 $ al mes?"). Unidad de análisis de la familia G. | el copy del elemento (el texto es el medio; la pregunta es lo que produce en la cabeza) |
+| **El canje** | Reemplazar una pregunta difícil por una fácil que produce la misma decisión. | bajar el precio o agregar oferta (eso cambia la oferta, no la pregunta) |
+| **El par** | A y B comparables: misma oferta, mismo precio, mismos datos, misma foto; la presentación es la única variable. | rediseño (cambia varias cosas a la vez, no se puede atribuir el resultado) |
+| **Delta** | Un cambio entre A y B: un elemento, un principio, una pregunta que se vuelve más fácil. | mejora cosmética (un delta que no mueve ninguna pregunta se descarta) |
+| **Delta reversible** | Delta que convierte por explotar un sesgo y se da vuelta en dark pattern con un dato falso: precio tachado, badge comparativo, urgencia, encuadre de pérdida. Tabla en `ab-pairs.md`. | dark pattern ya confirmado (el reversible pasa el gate y entra; el confirmado sale) |
 | **Eje ético** | ético → persuasivo → oscuro. Atributo de cada *uso* de un principio, no del principio en sí. | "bueno/malo": la técnica es neutral, el uso no |
 | **Prueba del arrepentimiento** | ¿El usuario agradecería este empujón si supiera exactamente cómo funciona? (Eyal). El filtro que decide los casos 🟡/🔴. | consentimiento formal (aceptar TOS no aprueba la prueba) |
 | **Nudge** | Facilita la decisión que le conviene al usuario. | **Sludge**: fricción que estorba la salida o la decisión pro-usuario |

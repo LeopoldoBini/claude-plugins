@@ -16,7 +16,7 @@ diseñá algo que esa auditoría aprobaría.
 Leé ANTES de diseñar:
 
 1. `${CLAUDE_PLUGIN_ROOT}/CONTEXT.md` — bucle, eje ético, términos canónicos
-2. `${CLAUDE_PLUGIN_ROOT}/references/principles.md` — las 6 familias A–F
+2. `${CLAUDE_PLUGIN_ROOT}/references/principles.md` — las 7 familias A–G
 3. `${CLAUDE_PLUGIN_ROOT}/references/dark-patterns.md` — lo que el diseño NO debe hacer
 
 ## Paso 1 — Anclar el objetivo del usuario
@@ -50,7 +50,8 @@ Reglas de selección:
 
 - Preferí principios 🟢. Cada principio 🟡 que uses necesita su guarda explícita (Paso 4). Los 🔴 (recompensas variables, aversión a la pérdida, FOMO) solo si sobreviven la prueba del arrepentimiento con argumento escrito — casi nunca lo hacen.
 - **Fricción estratégica es una herramienta de diseño**, no solo de auditoría: agregá fricción donde una decisión es cara o irreversible.
-- No fuerces las 6 familias: un flujo utilitario puede no necesitar mecánica de inversión. Declarar "acá no aplica D y está bien" también es diseño.
+- No fuerces las 7 familias: un flujo utilitario puede no necesitar mecánica de inversión. Declarar "acá no aplica D y está bien" también es diseño.
+- En cada pantalla donde el usuario **decide** (empezar, pagar, elegir plan, reservar), declará qué pregunta le estás haciendo y por qué es la fácil — familia G. El método y los siete lugares del delta están en `references/ab-pairs.md`.
 
 ## Paso 4 — Guardas éticas
 
