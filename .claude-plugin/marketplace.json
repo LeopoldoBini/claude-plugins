@@ -59,6 +59,16 @@
       "category": "testing"
     },
     {
+      "name": "spawn-sesion",
+      "description": "/spawn-sesion abre una sesión de Claude en otro repo con el pedido ya adentro, y devuelve una dirección estable para hablarle. Fija el id de sesión antes de crear, así el nombre no se adivina — que colisiona de verdad.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Leopoldo Bini"
+      },
+      "source": "./plugins/spawn-sesion",
+      "category": "productivity"
+    },
+    {
       "name": "voice-checkpoint",
       "description": "Checkpoint pre-ejecución para dictado por voz: /analizar reformula qué entendió y expone las zonas grises antes de tocar un solo archivo.",
       "version": "1.0.0",
