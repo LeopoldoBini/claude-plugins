@@ -1,7 +1,7 @@
 {
   "name": "spawn-sesion",
-  "version": "1.0.0",
-  "description": "/spawn-sesion abre una sesión de Claude en otro repo con el pedido ya adentro, y devuelve una dirección estable para hablarle. Fija el id de sesión antes de crear, así el nombre no se adivina — que colisiona de verdad.",
+  "version": "1.1.0",
+  "description": "Abrir una sesión de Claude en otro repo con el pedido ya adentro, y una dirección estable para hablarle. Autoinvocable: el modelo puede proponerlo, el usuario autoriza el gasto.",
   "author": {
     "name": "Leopoldo Bini",
     "email": "raul.leopoldobini@gmail.com"

@@ -1,13 +1,25 @@
 ---
-description: "Abre una sesión de Claude en otro repo con el pedido ya adentro, y deja una dirección estable para seguir hablándole."
+description: "Abrir una sesión de Claude en otro repo, con el pedido ya adentro y una dirección estable para hablarle. Usar cuando el usuario pide spawnear o abrir una sesión en otro proyecto, y cuando el trabajo se decide en otro repo y conviene proponerle abrir una allá."
 argument-hint: "<repo> <lo que le querés pedir>"
-allowed-tools: "Bash, Read, ListAgents, SendMessage"
-disable-model-invocation: true
+allowed-tools: "Bash, Read, AskUserQuestion, ListAgents, SendMessage"
 ---
 
 # Abrir una sesión en otro repo
 
 Pedido: `$ARGUMENTS` — la primera palabra es el repo, el resto es el brief.
+
+## 0. De quién salió la idea
+
+Abrir una sesión gasta plata y le entrega permisos a un agente nuevo, así que quién lo decidió cambia
+lo que corresponde hacer:
+
+- **Lo pidió el usuario** → abrir directo. Ya decidió.
+- **Se te ocurrió a vos** → proponérselo primero, con el repo y el brief que ibas a mandar, y esperar
+  el sí. Es el único gasto del que él no se enteró de antemano.
+
+> Este comando es autoinvocable por decisión explícita de Leo (14-ago-2026), apartándose de la regla
+> general de que lo que despacha agentes lo dispara sólo el usuario. El permiso vino con este gate:
+> la propuesta la puede iniciar el modelo, el gasto lo autoriza él.
 
 ## 1. Abrirla
 
@@ -54,4 +66,5 @@ que después le deja pedirte "preguntale a esa".
 - **Decile con qué permisos arranca.** La sesión nueva hereda la config del repo destino: medido, una
   de prueba arrancó sola en modo *no preguntes*. Vale la pena nombrarlo cuando el brief toca algo
   delicado.
-- **Cada sesión cuesta plata y no se cierra sola.** Se cierra con `cmux workspace close <ref>`.
+- **Una sesión abierta sigue abierta hasta que alguien la cierra**, con `cmux workspace close <ref>`.
+  Cuando el trabajo que la justificaba terminó, ofrecé cerrarla.
