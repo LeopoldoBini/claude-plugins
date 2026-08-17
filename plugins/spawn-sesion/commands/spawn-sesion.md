@@ -1,6 +1,7 @@
 ---
-description: "Abrir una sesión de Claude en otro repo, con el pedido ya adentro y una dirección estable para hablarle. Usar cuando el usuario pide spawnear o abrir una sesión en otro proyecto, y cuando el trabajo se decide en otro repo y conviene proponerle abrir una allá."
+description: "Sesión de Claude Code viva en otro repo: pestaña propia y dirección estable para seguir hablándole. Usar si pide spawnear, abrir o levantar una sesión en otro proyecto, o dejar trabajo andando allá. Leer o revisar archivos va a subagente."
 argument-hint: "<repo> <lo que le querés pedir>"
+model-invocable: el modelo propone abrir la sesión; el gasto lo autoriza el usuario (paso 0)
 allowed-tools: "Bash, Read, AskUserQuestion, ListAgents, SendMessage"
 ---
 

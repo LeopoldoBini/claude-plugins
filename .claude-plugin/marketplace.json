@@ -60,8 +60,8 @@
     },
     {
       "name": "spawn-sesion",
-      "description": "Abrir una sesión de Claude en otro repo con el pedido ya adentro, y una dirección estable para hablarle. Autoinvocable: el modelo puede proponerlo, el usuario autoriza el gasto.",
-      "version": "1.1.0",
+      "description": "Abrir una sesión de Claude Code viva en otro repo, con el pedido adentro y una dirección estable para hablarle. Autoinvocable: el modelo propone, el usuario autoriza el gasto.",
+      "version": "1.2.0",
       "author": {
         "name": "Leopoldo Bini"
       },
