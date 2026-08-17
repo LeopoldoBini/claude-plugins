@@ -21,6 +21,9 @@ sesión", y lo que hay que mandar está en la conversación, no en el argumento.
 - **Árbol de trabajo**: la sesión nueva abre en la carpeta tal cual, compartiendo el árbol. Si
   necesita uno propio lo decide ella, que tiene el repo delante y sabe si va a escribir. Abrila en un
   árbol aparte sólo si el usuario lo pide.
+- **Dónde aparece**: lo decide el script. Si ya hay una ventana de cmux abierta en ese repo, entra
+  como pestaña ahí; si no, abre ventana propia. Pasale `--ventana` sólo si el usuario pide que la
+  sesión nueva tenga la suya aparte.
 
 ## 0. De quién salió la idea
 
@@ -45,8 +48,8 @@ Una ruta existente se usa tal cual; un fragmento se busca entre los repos, descu
 cada vez, sin lista escrita a mano que se pudra. `--help` tiene las opciones — entre ellas
 `--brief-file`, que toma derecho el archivo de traspaso que deja el skill de handoff.
 
-Agregá `--bg` sólo si el usuario pide que no aparezca como pestaña. La pestaña es lo bueno: la ve, la
-lee y la puede tomar él mismo.
+Agregá `--bg` sólo si el usuario pide que no se vea. Que se vea es lo bueno: la lee y la puede tomar
+él mismo.
 
 Termina con `estado:`, y ahí está todo. Tres finales:
 
@@ -54,7 +57,7 @@ Termina con `estado:`, y ahí está todo. Tres finales:
 |---|---|
 | `creada` | Seguir al paso 2. |
 | `ambiguo` / `sin-coincidencias` | Mostrarle los candidatos y preguntarle cuál. Elegir por él es cómo se termina escribiendo en el repo equivocado. |
-| `trabada` | La sesión arrancó y quedó esperando algo en pantalla — casi siempre *"¿confiás en esta carpeta?"*, porque Claude nunca abrió ese repo. Mostrarle la pantalla y **decirle que la conteste desde la pestaña**, que ya está abierta. Confiar en una carpeta la habilita a leer, editar y ejecutar ahí: la decisión es suya y se toma con su mano. Si prefiere no seguir, cerrala con `cmux workspace close <ref>`. |
+| `trabada` | La sesión arrancó y quedó esperando algo en pantalla. Mostrarle esa pantalla y decirle que la conteste desde la pestaña, que ya está abierta. Si prefiere no seguir, cerrala (ver Guardrails). |
 
 ## 2. Quedarte con la dirección
 
@@ -64,9 +67,10 @@ El script devuelve tres cosas; las tres importan:
   otra sesión vuelve sola.
 - **`nombre_repetido: si`** — hay otra sesión viva llamada igual (pasa: se midieron dos
   `app-saltacompra-a4` a la vez). Ahí el nombre ya no distingue, y la dirección buena es la de cmux.
-- **`workspace`** — la referencia de cmux, única y estable. `cmux send --workspace <ref> "texto"` le
-  escribe y `cmux read-screen --workspace <ref>` le lee la pantalla. Es la dirección de respaldo, y la
-  forma de ver qué está haciendo sin interrumpirla.
+- **`direccion_cmux`** — la referencia de cmux, única y estable: `surface:N` si entró como pestaña,
+  `workspace:N` si abrió ventana. `cmux send --surface <ref> "texto"` le escribe y
+  `cmux read-screen --surface <ref>` le lee la pantalla (con `--workspace` para las ventanas). Es la
+  dirección de respaldo, y la forma de ver qué está haciendo sin interrumpirla.
 
 Terminás cuando el usuario tiene en la mano el nombre, la referencia y cuál de las dos usar. Eso es lo
 que después le deja pedirte "preguntale a esa".
@@ -78,8 +82,8 @@ que después le deja pedirte "preguntale a esa".
 - **Mandá el mensaje y seguí.** Un mensaje entre sesiones puede quedar esperando la aprobación del
   humano de esa ventana y no llegar nunca, sin dar error. Si la respuesta importa, avisale que quizás
   tenga que aprobarla allá.
-- **Decile con qué permisos arranca.** La sesión nueva hereda la config del repo destino: medido, una
-  de prueba arrancó sola en modo *no preguntes*. Vale la pena nombrarlo cuando el brief toca algo
-  delicado.
-- **Una sesión abierta sigue abierta hasta que alguien la cierra**, con `cmux workspace close <ref>`.
-  Cuando el trabajo que la justificaba terminó, ofrecé cerrarla.
+- **Arranca sin preguntar permisos** — el alias `cc` de Leo, por decisión suya. Edita, borra y
+  ejecuta en esa carpeta sin freno. Nombralo cuando el brief toca algo delicado.
+- **Una sesión abierta sigue abierta hasta que alguien la cierra.** Pestaña: `cmux close-surface
+  --surface <ref>`. Ventana: `cmux workspace close <ref>` — cierra todas sus pestañas, así que mirá
+  antes qué más hay adentro. Cuando el trabajo que la justificaba terminó, ofrecé cerrarla.

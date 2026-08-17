@@ -8,12 +8,14 @@
 set -euo pipefail
 
 ROOTS_DEFAULT="$HOME/Proyectos $HOME/cuenta-norte"
+COLOR_SPAWN="Indigo"   # color reservado: "esta ventana la abrió otra sesión, no Leo"
 MODO="cmux"
 REPO=""
 TITULO=""
 BRIEF=""
 DRY=0
 WORKTREE=0
+FORZAR_VENTANA=0
 
 uso() {
   cat <<'EOF'
@@ -24,9 +26,13 @@ uso: spawn.sh --repo <ruta-o-fragmento> [opciones]
   --brief <t>      Lo que se le pide a la sesión nueva. Sin esto arranca ociosa.
   --brief-file <f> Lee el brief de un archivo — el traspaso de /handoff entra derecho acá.
   --worktree       Árbol de trabajo propio del mismo repo, para que no se pisen dos sesiones.
-  --titulo <t>     Título de la pestaña de cmux. Default: nombre de la carpeta.
+  --ventana        Ventana propia aunque ya haya una abierta en ese repo.
+  --titulo <t>     Título de la ventana de cmux. Default: nombre de la carpeta. No aplica a pestañas.
   --bg             Sesión de fondo (sin pestaña). Leo no la ve ni la puede tomar.
   --dry-run        Muestra lo que haría y sale.
+
+Dónde aparece: si ya hay una ventana de cmux abierta en ese repo, entra como PESTAÑA ahí — al lado
+de la que la pidió. Si no hay ninguna, abre ventana propia, marcada con color y con quién la abrió.
 
 Busca repos en $SPAWN_ROOTS (default: ~/Proyectos ~/cuenta-norte).
 Los worktrees viven en $SPAWN_WORKTREES (default: ~/.spawn-worktrees), fuera del repo.
@@ -42,6 +48,7 @@ while [ $# -gt 0 ]; do
       [ -f "${2:-}" ] || { echo "error: no existe el archivo de brief '${2:-}'" >&2; exit 66; }
       BRIEF="$(cat "$2")"; shift 2 ;;
     --worktree) WORKTREE=1; shift ;;
+    --ventana) FORZAR_VENTANA=1; shift ;;
     --titulo) TITULO="${2:-}"; shift 2 ;;
     --bg)     MODO="bg"; shift ;;
     --dry-run) DRY=1; shift ;;
@@ -105,24 +112,92 @@ if [ "$WORKTREE" -eq 1 ]; then
   fi
   DESTINO="$WTDIR"
   TITULO="$TITULO (árbol propio)"
+  FORZAR_VENTANA=1   # un árbol aparte es trabajo aparte: merece su ventana
 fi
 UUID="$(python3 -c 'import uuid;print(uuid.uuid4())')"
 
 # El brief viaja por archivo, no incrustado en la línea de comando: así comillas, saltos de línea y
 # acentos llegan intactos en vez de romper el quoting del shell que cmux ejecuta.
+#
+# Arranca como el alias `cc` de Leo — sin preguntar permisos. Se escribe la bandera y no el alias
+# porque el comando lo corre un shell no interactivo, donde los alias no existen. Efecto de fondo:
+# también saltea el "¿confiás en esta carpeta?" que dejaba sesiones trabadas en repos nuevos.
+CLAUDE_BIN="claude --dangerously-skip-permissions"
 BRIEFFILE=""
-CMD="claude --session-id $UUID"
+CMD="$CLAUDE_BIN --session-id $UUID"
 if [ -n "$BRIEF" ]; then
   BRIEFFILE="$(mktemp "${TMPDIR:-/tmp}/spawn-brief.XXXXXX")"
   printf '%s' "$BRIEF" > "$BRIEFFILE"
-  CMD="claude --session-id $UUID \"\$(cat $BRIEFFILE)\""
+  CMD="$CLAUDE_BIN --session-id $UUID \"\$(cat $BRIEFFILE)\""
 fi
+
+# --- dónde ponerla: pestaña en una ventana que ya existe, o ventana nueva -----
+# Abrir una ventana por sesión llena la barra de duplicados del mismo repo (medido: dos ventanas en
+# `radar` a la vez). Si ya hay una abierta ahí, la sesión nueva entra como pestaña: aparece al lado
+# de la que la pidió y el origen se lee solo, sin marca. Se prefiere la ventana de quien llama; si no
+# es esa, la de actividad más reciente. Sin ninguna, ventana propia — y ahí sí hace falta marcarla.
+WSTAB=""; GRUPO=""; ORIGEN=""
+if [ "$MODO" = "cmux" ] && command -v cmux >/dev/null 2>&1; then
+  INFO="$(python3 - "$DESTINO" "${CMUX_WORKSPACE_ID:-}" <<'PY' 2>/dev/null || true
+import json, os, subprocess, sys
+
+dest, caller = sys.argv[1], sys.argv[2]
+
+def cmux_json(*args):
+    try:
+        r = subprocess.run(["cmux", *args, "--json"], capture_output=True, text=True, timeout=10)
+        return json.loads(r.stdout)
+    except Exception:
+        return {}
+
+def toplevel(path):
+    if not os.path.isdir(path):
+        return None
+    r = subprocess.run(["git", "-C", path, "rev-parse", "--show-toplevel"],
+                       capture_output=True, text=True)
+    return r.stdout.strip() or None
+
+wss = cmux_json("workspace", "list").get("workspaces", [])
+dest_top = toplevel(dest)
+
+# Coincidencia exacta primero; si no hay, misma raíz de repo — abrir en el paraguas del mismo repo
+# sigue siendo el mismo contexto de trabajo.
+cands = [w for w in wss if (w.get("current_directory") or "").rstrip("/") == dest.rstrip("/")]
+if not cands and dest_top:
+    cands = [w for w in wss if toplevel(w.get("current_directory") or "") == dest_top]
+
+elegido = next((w for w in cands if w.get("id") == caller), None)
+if elegido is None and cands:
+    elegido = sorted(cands, key=lambda w: w.get("latest_submitted_at") or "")[-1]
+
+# El grupo y el título de quien llama sólo sirven si termina abriéndose ventana nueva.
+mio = next((w for w in wss if w.get("id") == caller), None)
+grupo = ""
+if mio:
+    for g in cmux_json("workspace-group", "list").get("groups", []):
+        if mio.get("ref") in g.get("member_workspace_refs", []):
+            grupo = g.get("ref", "")
+            break
+
+print("ws_tab=" + (elegido.get("ref", "") if elegido else ""))
+print("grupo=" + grupo)
+print("origen=" + (mio.get("custom_title") or os.path.basename(mio.get("current_directory") or "") if mio else ""))
+PY
+)"
+  WSTAB="$(printf '%s\n' "$INFO" | sed -n 's/^ws_tab=//p')"
+  GRUPO="$(printf '%s\n' "$INFO" | sed -n 's/^grupo=//p')"
+  ORIGEN="$(printf '%s\n' "$INFO" | sed -n 's/^origen=//p')"
+fi
+[ "$FORZAR_VENTANA" -eq 1 ] && WSTAB=""
+[ -n "$WSTAB" ] && MODO="tab"
 
 if [ "$DRY" -eq 1 ]; then
   echo "estado: dry-run"
   echo "repo: $DESTINO"
   [ -n "$RAMA" ] && echo "rama: $RAMA"
   echo "modo: $MODO"
+  [ -n "$WSTAB" ] && echo "ventana_destino: $WSTAB"
+  [ -n "$GRUPO" ] && echo "grupo: $GRUPO"
   echo "titulo: $TITULO"
   echo "session_id: $UUID"
   echo "comando: $CMD"
@@ -130,15 +205,43 @@ if [ "$DRY" -eq 1 ]; then
   exit 0
 fi
 
-WS=""
-if [ "$MODO" = "cmux" ]; then
-  command -v cmux >/dev/null 2>&1 || { echo "error: no está el cli de cmux; usá --bg" >&2; exit 69; }
-  SALIDA="$(cmux workspace create --name "$TITULO" --cwd "$DESTINO" --command "$CMD" --focus false 2>&1)"
-  WS="$(printf '%s' "$SALIDA" | grep -oE 'workspace:[0-9]+' | head -1)"
-  [ -n "$WS" ] || { echo "error: cmux no devolvió una referencia de workspace" >&2; printf '%s\n' "$SALIDA" >&2; exit 70; }
-else
-  ( cd "$DESTINO" && claude --bg --session-id "$UUID" "${BRIEF:-hola}" >/dev/null 2>&1 & )
-fi
+WS=""; SURF=""
+case "$MODO" in
+  tab)
+    # Una pestaña nace fría: sin proceso hasta que recibe algo (medido). El Enter la despierta, y el
+    # comando recién se manda con el prompt vivo — si no, el shell se come los primeros caracteres.
+    SALIDA="$(cmux new-surface --type terminal --workspace "$WSTAB" --working-directory "$DESTINO" --focus false 2>&1)"
+    SURF="$(printf '%s' "$SALIDA" | grep -oE 'surface:[0-9]+' | head -1)"
+    [ -n "$SURF" ] || { echo "error: cmux no devolvió una referencia de pestaña" >&2; printf '%s\n' "$SALIDA" >&2; exit 70; }
+    WS="$WSTAB"
+    cmux send --surface "$SURF" "\n" >/dev/null 2>&1 || true
+    for _ in $(seq 1 20); do
+      [ -n "$(cmux read-screen --surface "$SURF" 2>/dev/null | tr -d '[:space:]')" ] && break
+      sleep 0.5
+    done
+    sleep 1
+    cmux send --surface "$SURF" "$CMD\n" >/dev/null 2>&1 \
+      || { echo "error: no se pudo escribir en la pestaña $SURF" >&2; exit 70; }
+    ;;
+  cmux)
+    command -v cmux >/dev/null 2>&1 || { echo "error: no está el cli de cmux; usá --bg" >&2; exit 69; }
+    if [ -n "$GRUPO" ]; then
+      SALIDA="$(cmux workspace create --name "$TITULO" --cwd "$DESTINO" --command "$CMD" --focus false --group "$GRUPO" 2>&1)"
+    else
+      SALIDA="$(cmux workspace create --name "$TITULO" --cwd "$DESTINO" --command "$CMD" --focus false 2>&1)"
+    fi
+    WS="$(printf '%s' "$SALIDA" | grep -oE 'workspace:[0-9]+' | head -1)"
+    [ -n "$WS" ] || { echo "error: cmux no devolvió una referencia de workspace" >&2; printf '%s\n' "$SALIDA" >&2; exit 70; }
+    # Color y descripción son la marca de origen: cmux no las pisa, a diferencia del título, que la
+    # sesión reescribe sola con lo que está haciendo.
+    cmux workspace-action --workspace "$WS" --action set-color --color "$COLOR_SPAWN" >/dev/null 2>&1 || true
+    cmux workspace-action --workspace "$WS" --action set-description \
+      --description "↩ abierta desde ${ORIGEN:-otra sesión} · $(date +'%d/%m %H:%M')" >/dev/null 2>&1 || true
+    ;;
+  bg)
+    ( cd "$DESTINO" && claude --dangerously-skip-permissions --bg --session-id "$UUID" "${BRIEF:-hola}" >/dev/null 2>&1 & )
+    ;;
+esac
 
 # --- resolver qué nombre le tocó a NUESTRO id -------------------------------
 NOMBRE=""
@@ -165,6 +268,10 @@ n=sys.argv[1]
 print("si" if n and sum(1 for s in d if s.get("name")==n)>1 else "no")
 ' "$NOMBRE" || echo "no")"
 
+# La dirección de cmux es la pestaña cuando hay pestaña: leer por ventana devuelve la pestaña
+# seleccionada, que casi nunca es la nuestra.
+DIR_CMUX="${SURF:-$WS}"
+
 if [ -z "$NOMBRE" ]; then
   # La causa medida y frecuente: en un repo que Claude nunca abrió, la sesión se traba en la pregunta
   # "¿confiás en esta carpeta?" y nunca se registra. Mostrar la pantalla convierte un guión mudo en
@@ -174,9 +281,14 @@ if [ -z "$NOMBRE" ]; then
   echo "modo: $MODO"
   echo "session_id: $UUID"
   echo "workspace: ${WS:-—}"
-  if [ -n "$WS" ]; then
+  [ -n "$SURF" ] && echo "pestaña: $SURF"
+  if [ -n "$DIR_CMUX" ]; then
     echo "pantalla:"
-    cmux read-screen --workspace "$WS" 2>/dev/null | sed '/^[[:space:]]*$/d' | tail -12 | sed 's/^/  /'
+    if [ -n "$SURF" ]; then
+      cmux read-screen --surface "$SURF" 2>/dev/null | sed '/^[[:space:]]*$/d' | tail -12 | sed 's/^/  /'
+    else
+      cmux read-screen --workspace "$WS" 2>/dev/null | sed '/^[[:space:]]*$/d' | tail -12 | sed 's/^/  /'
+    fi
   fi
   [ -n "$BRIEFFILE" ] && echo "brief_tmp: $BRIEFFILE"
   exit 3
@@ -188,6 +300,8 @@ echo "repo: $DESTINO"
 echo "modo: $MODO"
 echo "session_id: $UUID"
 echo "workspace: ${WS:-—}"
+[ -n "$SURF" ] && echo "pestaña: $SURF"
+echo "direccion_cmux: ${DIR_CMUX:-—}"
 echo "nombre: $NOMBRE"
 echo "nombre_repetido: $REPETIDO"
 [ -n "$BRIEFFILE" ] && echo "brief_tmp: $BRIEFFILE"
