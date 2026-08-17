@@ -13,18 +13,23 @@ REPO=""
 TITULO=""
 BRIEF=""
 DRY=0
+WORKTREE=0
 
 uso() {
   cat <<'EOF'
 uso: spawn.sh --repo <ruta-o-fragmento> [opciones]
 
-  --repo <r>     Ruta del repo, o un fragmento a buscar entre los repos git.
-  --brief <t>    Lo que se le pide a la sesión nueva. Sin esto arranca ociosa.
-  --titulo <t>   Título de la pestaña de cmux. Default: nombre de la carpeta.
-  --bg           Sesión de fondo (sin pestaña). Leo no la ve ni la puede tomar.
-  --dry-run      Muestra lo que haría y sale.
+  --repo <r>       Carpeta donde abrirla (`.` = acá), o un fragmento a buscar entre los repos git.
+                   Cualquier carpeta sirve: el contexto de trabajo no siempre es un repo.
+  --brief <t>      Lo que se le pide a la sesión nueva. Sin esto arranca ociosa.
+  --brief-file <f> Lee el brief de un archivo — el traspaso de /handoff entra derecho acá.
+  --worktree       Árbol de trabajo propio del mismo repo, para que no se pisen dos sesiones.
+  --titulo <t>     Título de la pestaña de cmux. Default: nombre de la carpeta.
+  --bg             Sesión de fondo (sin pestaña). Leo no la ve ni la puede tomar.
+  --dry-run        Muestra lo que haría y sale.
 
 Busca repos en $SPAWN_ROOTS (default: ~/Proyectos ~/cuenta-norte).
+Los worktrees viven en $SPAWN_WORKTREES (default: ~/.spawn-worktrees), fuera del repo.
 Salida: bloques `clave: valor`. Sale 2 si el fragmento es ambiguo, listando los candidatos.
 EOF
 }
@@ -33,6 +38,10 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --repo)   REPO="${2:-}"; shift 2 ;;
     --brief)  BRIEF="${2:-}"; shift 2 ;;
+    --brief-file)
+      [ -f "${2:-}" ] || { echo "error: no existe el archivo de brief '${2:-}'" >&2; exit 66; }
+      BRIEF="$(cat "$2")"; shift 2 ;;
+    --worktree) WORKTREE=1; shift ;;
     --titulo) TITULO="${2:-}"; shift 2 ;;
     --bg)     MODO="bg"; shift ;;
     --dry-run) DRY=1; shift ;;
@@ -43,10 +52,12 @@ done
 
 [ -n "$REPO" ] || { echo "error: falta --repo" >&2; exit 64; }
 
-# --- resolver el repo -------------------------------------------------------
-# El sistema de archivos ES el registro: los repos se descubren buscando .git, así no hay una lista
-# a mano que se pudra. Ante duda se sale con 2 y se listan los candidatos — nunca se elige por el usuario.
-if [ -d "$REPO/.git" ]; then
+# --- resolver el destino ----------------------------------------------------
+# Una ruta existente se toma tal cual, tenga .git o no: el contexto adecuado para trabajar es a veces
+# una carpeta del paraguas, no un repo. Sin ruta, el sistema de archivos ES el registro y los repos se
+# descubren buscando .git, así no hay una lista a mano que se pudra. Ante duda se sale con 2 y se
+# listan los candidatos — nunca se elige por el usuario.
+if [ -d "$REPO" ]; then
   DESTINO="$(cd "$REPO" && pwd)"
 else
   CANDIDATOS=""
@@ -76,6 +87,25 @@ else
 fi
 
 [ -n "$TITULO" ] || TITULO="$(basename "$DESTINO")"
+
+# --- árbol propio -----------------------------------------------------------
+# Dos sesiones sobre el mismo árbol se pisan sin avisar: una hace checkout mientras la otra edita, y
+# el index de git queda trabado. El worktree vive FUERA del repo para no ensuciar lo que ya está.
+RAMA=""
+WTDIR=""
+if [ "$WORKTREE" -eq 1 ]; then
+  git -C "$DESTINO" rev-parse --git-dir >/dev/null 2>&1 \
+    || { echo "error: --worktree necesita un repo git; '$DESTINO' no lo es" >&2; exit 64; }
+  RAMA="spawn/$(basename "$DESTINO")-$(date +%H%M%S)"
+  WTDIR="${SPAWN_WORKTREES:-$HOME/.spawn-worktrees}/$(basename "$RAMA")"
+  if [ "$DRY" -eq 0 ]; then
+    mkdir -p "$(dirname "$WTDIR")"
+    git -C "$DESTINO" worktree add -b "$RAMA" "$WTDIR" >/dev/null 2>&1 \
+      || { echo "error: no se pudo crear el worktree en $WTDIR" >&2; exit 70; }
+  fi
+  DESTINO="$WTDIR"
+  TITULO="$TITULO (árbol propio)"
+fi
 UUID="$(python3 -c 'import uuid;print(uuid.uuid4())')"
 
 # El brief viaja por archivo, no incrustado en la línea de comando: así comillas, saltos de línea y
@@ -91,6 +121,7 @@ fi
 if [ "$DRY" -eq 1 ]; then
   echo "estado: dry-run"
   echo "repo: $DESTINO"
+  [ -n "$RAMA" ] && echo "rama: $RAMA"
   echo "modo: $MODO"
   echo "titulo: $TITULO"
   echo "session_id: $UUID"
@@ -153,6 +184,7 @@ fi
 
 echo "estado: creada"
 echo "repo: $DESTINO"
+[ -n "$RAMA" ] && echo "rama: $RAMA"
 echo "modo: $MODO"
 echo "session_id: $UUID"
 echo "workspace: ${WS:-—}"

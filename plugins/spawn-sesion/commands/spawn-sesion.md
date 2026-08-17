@@ -1,13 +1,25 @@
 ---
-description: "Sesión de Claude Code viva en otro repo: pestaña propia y dirección estable para seguir hablándole. Usar si pide spawnear, abrir o levantar una sesión en otro proyecto, o dejar trabajo andando allá. Leer o revisar archivos va a subagente."
+description: "Abrir otra sesión de Claude Code con el pedido adentro y una dirección para seguir hablándole. Usar si pide que algo lo siga o lo haga otra sesión, acá o en otra carpeta. Leer o revisar va a subagente."
 argument-hint: "<repo> <lo que le querés pedir>"
 model-invocable: el modelo propone abrir la sesión; el gasto lo autoriza el usuario (paso 0)
 allowed-tools: "Bash, Read, AskUserQuestion, ListAgents, SendMessage"
 ---
 
-# Abrir una sesión en otro repo
+# Abrir otra sesión
 
-Pedido: `$ARGUMENTS` — la primera palabra es el repo, el resto es el brief.
+Pedido: `$ARGUMENTS`. Puede venir vacío o a medias: casi siempre llega como "seguí esto en otra
+sesión", y lo que hay que mandar está en la conversación, no en el argumento.
+
+## Dónde y qué — se deduce, no se pregunta
+
+- **Dónde**: la carpeta que tiene el contexto del trabajo. La del proyecto que se está hablando; `.`
+  si el trabajo es acá mismo. Cualquier carpeta sirve, tenga `.git` o no. Preguntá sólo si el script
+  vuelve `ambiguo`.
+- **Qué**: el brief lo redactás vos con lo que se venía hablando — qué hay que hacer, qué se decidió
+  ya, qué archivo o ticket mirar primero. Copiar la frase del usuario tal cual deja a la sesión nueva
+  arrancando ciega, porque el contexto estaba acá y no viajó.
+- **Árbol propio**: `--worktree` cuando la sesión nueva va a escribir en el mismo repo donde estás
+  trabajando. Dos sesiones sobre el mismo árbol se pisan sin avisar.
 
 ## 0. De quién salió la idea
 
@@ -25,11 +37,12 @@ lo que corresponde hacer:
 ## 1. Abrirla
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --repo <repo> --brief "<brief>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/spawn.sh" --repo <carpeta> --brief "<brief>"
 ```
 
-El repo se descubre buscando `.git` cada vez: no hay lista escrita a mano, así no hay nada que se
-pudra. `--help` tiene las opciones.
+Una ruta existente se usa tal cual; un fragmento se busca entre los repos, descubiertos por `.git`
+cada vez, sin lista escrita a mano que se pudra. `--help` tiene las opciones — entre ellas
+`--brief-file`, que toma derecho el archivo de traspaso que deja el skill de handoff.
 
 Agregá `--bg` sólo si el usuario pide que no aparezca como pestaña. La pestaña es lo bueno: la ve, la
 lee y la puede tomar él mismo.
