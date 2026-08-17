@@ -18,10 +18,9 @@ sesión", y lo que hay que mandar está en la conversación, no en el argumento.
 - **Qué**: el brief lo redactás vos con lo que se venía hablando — qué hay que hacer, qué se decidió
   ya, qué archivo o ticket mirar primero. Copiar la frase del usuario tal cual deja a la sesión nueva
   arrancando ciega, porque el contexto estaba acá y no viajó.
-- **Árbol propio**: `--worktree` sólo si la abrís en la carpeta donde el usuario y vos están
-  editando ahora. Dos sesiones sobre el mismo árbol se pisan sin avisar, y desde adentro del repo eso
-  no se ve — un `git status` sucio no distingue entre "quedó así de ayer" y "hay alguien tipeando".
-  Ese dato lo tenés vos y nadie más. El resto de las veces decide ella, que tiene el repo delante.
+- **Árbol de trabajo**: la sesión nueva abre en la carpeta tal cual, compartiendo el árbol. Si
+  necesita uno propio lo decide ella, que tiene el repo delante y sabe si va a escribir. Abrila en un
+  árbol aparte sólo si el usuario lo pide.
 
 ## 0. De quién salió la idea
 
