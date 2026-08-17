@@ -1,8 +1,10 @@
 ---
 name: glow-up
 description: Glow-up de una vista: la deja hermosa y más funcional editando el código — adopta el sistema del proyecto, aplica craft visual y los principios de decisión, y la verifica corriendo con screenshot del antes y el después.
-disable-model-invocation: true
 ---
+
+<!-- model-invocable: pulir una vista es trabajo de edición sobre código que ya existe, no orquestación: no crea issues, no despacha subagentes, no mergea. Leo la quiere disponible desde adentro de una sesión de diseño. -->
+
 
 # /glow-up — dejala hermosa y que funcione mejor
 

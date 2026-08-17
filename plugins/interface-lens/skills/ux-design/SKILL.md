@@ -1,8 +1,10 @@
 ---
 name: ux-design
 description: Diseña un flujo o interfaz declarando qué principio de psicología UX usa cada decisión, por qué sirve al usuario y con qué guardas éticas — sobre el bucle disparador→acción→recompensa→inversión, con norte time-well-spent.
-disable-model-invocation: true
 ---
+
+<!-- model-invocable: proponer un flujo es diseño, no orquestación: devuelve una propuesta, no toca el tracker ni despacha trabajo. Leo la quiere disponible desde adentro de una sesión de diseño. -->
+
 
 # /ux-design — diseño de flujo con principios declarados
 
