@@ -1,0 +1,8 @@
+# Allowlist del estándar de calidad — insumo del check-estandar.sh de leo-stack
+# Formato: secciones [externos]/[retirados]/[paths], un ítem por línea, sin barra ni namespace.
+
+[externos]
+# spawn-sesion los nombra como ejemplos de encargo que la sesión nueva no puede autoinvocarse
+to-tickets        # mattpocock-skills
+prd-pipeline      # host-orchestrator (leo-private)
+model             # Claude Code, built-in

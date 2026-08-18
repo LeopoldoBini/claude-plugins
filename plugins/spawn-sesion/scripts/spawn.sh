@@ -13,6 +13,7 @@ MODO="cmux"
 REPO=""
 TITULO=""
 BRIEF=""
+MODEL=""
 DRY=0
 WORKTREE=0
 FORZAR_VENTANA=0
@@ -25,6 +26,8 @@ uso: spawn.sh --repo <ruta-o-fragmento> [opciones]
                    Cualquier carpeta sirve: el contexto de trabajo no siempre es un repo.
   --brief <t>      Lo que se le pide a la sesión nueva. Sin esto arranca ociosa.
   --brief-file <f> Lee el brief de un archivo — el traspaso de /handoff entra derecho acá.
+  --model <m>      Modelo de la sesión (fable, opus, sonnet…). Se fija al nacer: desde adentro
+                   la sesión no puede cambiárselo (/model sólo existe tipeado por el usuario).
   --worktree       Árbol de trabajo propio del mismo repo, para que no se pisen dos sesiones.
   --ventana        Ventana propia aunque ya haya una abierta en ese repo.
   --titulo <t>     Título de la ventana de cmux. Default: nombre de la carpeta. No aplica a pestañas.
@@ -33,6 +36,10 @@ uso: spawn.sh --repo <ruta-o-fragmento> [opciones]
 
 Dónde aparece: si ya hay una ventana de cmux abierta en ese repo, entra como PESTAÑA ahí — al lado
 de la que la pidió. Si no hay ninguna, abre ventana propia, marcada con color y con quién la abrió.
+
+Sin cmux pero con tmux (la flota), abre una VENTANA en la mesa de tmux de ese repo — la que Leo ya
+espeja desde la Mac. Sin mesa para ese repo, crea una. La ventana es siempre nueva: no se escribe
+sobre una que ya existe.
 
 Busca repos en $SPAWN_ROOTS (default: ~/Proyectos ~/cuenta-norte).
 Los worktrees viven en $SPAWN_WORKTREES (default: ~/.spawn-worktrees), fuera del repo.
@@ -47,6 +54,7 @@ while [ $# -gt 0 ]; do
     --brief-file)
       [ -f "${2:-}" ] || { echo "error: no existe el archivo de brief '${2:-}'" >&2; exit 66; }
       BRIEF="$(cat "$2")"; shift 2 ;;
+    --model)  MODEL="${2:-}"; shift 2 ;;
     --worktree) WORKTREE=1; shift ;;
     --ventana) FORZAR_VENTANA=1; shift ;;
     --titulo) TITULO="${2:-}"; shift 2 ;;
@@ -123,6 +131,7 @@ UUID="$(python3 -c 'import uuid;print(uuid.uuid4())')"
 # porque el comando lo corre un shell no interactivo, donde los alias no existen. Efecto de fondo:
 # también saltea el "¿confiás en esta carpeta?" que dejaba sesiones trabadas en repos nuevos.
 CLAUDE_BIN="claude --dangerously-skip-permissions"
+[ -n "$MODEL" ] && CLAUDE_BIN="$CLAUDE_BIN --model $MODEL"
 BRIEFFILE=""
 CMD="$CLAUDE_BIN --session-id $UUID"
 if [ -n "$BRIEF" ]; then
@@ -137,6 +146,12 @@ fi
 # de la que la pidió y el origen se lee solo, sin marca. Se prefiere la ventana de quien llama; si no
 # es esa, la de actividad más reciente. Sin ninguna, ventana propia — y ahí sí hace falta marcarla.
 WSTAB=""; GRUPO=""; ORIGEN=""
+# La Mac tiene cmux y es la interfaz; la flota no lo tiene ni le sirve. Ahí el análogo de la ventana
+# es la mesa de tmux del repo, que ya se espeja desde la Mac: una ventana nueva adentro aparece en la
+# pantalla de Leo sin ningún puente extra.
+if [ "$MODO" = "cmux" ] && ! command -v cmux >/dev/null 2>&1 && command -v tmux >/dev/null 2>&1; then
+  MODO="tmux"
+fi
 if [ "$MODO" = "cmux" ] && command -v cmux >/dev/null 2>&1; then
   INFO="$(python3 - "$DESTINO" "${CMUX_WORKSPACE_ID:-}" <<'PY' 2>/dev/null || true
 import json, os, subprocess, sys
@@ -188,7 +203,21 @@ PY
   GRUPO="$(printf '%s\n' "$INFO" | sed -n 's/^grupo=//p')"
   ORIGEN="$(printf '%s\n' "$INFO" | sed -n 's/^origen=//p')"
 fi
+MESA=""
+if [ "$MODO" = "tmux" ]; then
+  # La mesa del repo se reconoce por dónde está parada: coincidencia exacta primero, y si no, misma
+  # raíz de repo — una mesa abierta en un subdirectorio sigue siendo el mismo contexto de trabajo.
+  DEST_TOP="$(git -C "$DESTINO" rev-parse --show-toplevel 2>/dev/null || true)"
+  while IFS=' ' read -r sname spath; do
+    [ -n "$sname" ] || continue
+    if [ "${spath%/}" = "${DESTINO%/}" ]; then MESA="$sname"; break; fi
+    if [ -n "$DEST_TOP" ] && [ "$(git -C "$spath" rev-parse --show-toplevel 2>/dev/null || true)" = "$DEST_TOP" ]; then
+      [ -n "$MESA" ] || MESA="$sname"
+    fi
+  done < <(tmux list-panes -a -F '#{session_name} #{pane_current_path}' 2>/dev/null || true)
+fi
 [ "$FORZAR_VENTANA" -eq 1 ] && WSTAB=""
+[ "$FORZAR_VENTANA" -eq 1 ] && MESA=""
 [ -n "$WSTAB" ] && MODO="tab"
 
 if [ "$DRY" -eq 1 ]; then
@@ -197,6 +226,10 @@ if [ "$DRY" -eq 1 ]; then
   [ -n "$RAMA" ] && echo "rama: $RAMA"
   echo "modo: $MODO"
   [ -n "$WSTAB" ] && echo "ventana_destino: $WSTAB"
+  if [ "$MODO" = "tmux" ]; then
+    echo "sustrato: tmux (sin cmux en esta máquina)"
+    echo "mesa_destino: ${MESA:-— (mesa nueva)}"
+  fi
   [ -n "$GRUPO" ] && echo "grupo: $GRUPO"
   echo "titulo: $TITULO"
   echo "session_id: $UUID"
@@ -238,8 +271,26 @@ case "$MODO" in
     cmux workspace-action --workspace "$WS" --action set-description \
       --description "↩ abierta desde ${ORIGEN:-otra sesión} · $(date +'%d/%m %H:%M')" >/dev/null 2>&1 || true
     ;;
+  tmux)
+    # Una mesa de tmux puede tener trabajo vivo adentro, así que acá NUNCA se escribe sobre una
+    # ventana que ya existe: la sesión nueva nace en la suya. El comando va puesto al crearla — no
+    # hay prompt frío que despertar, que es donde send-keys se come los primeros caracteres.
+    VENTANA="↩ $TITULO"
+    if [ -n "$MESA" ]; then
+      WS="$(tmux new-window -P -F '#{session_name}:#{window_index}' -t "$MESA:" -c "$DESTINO" -n "$VENTANA" "$CMD" 2>&1)" \
+        || { echo "error: no se pudo abrir la ventana en la mesa '$MESA'" >&2; exit 70; }
+    else
+      # tmux no admite '.' ni ':' en el nombre de una mesa: los usa para direccionar ventana y panel.
+      MESA="$(printf '%s' "$TITULO" | tr ' .:' '---' | cut -c1-24)"
+      tmux has-session -t "=$MESA" 2>/dev/null \
+        && { echo "error: ya existe una mesa llamada '$MESA' que no está en ese repo" >&2; exit 70; }
+      tmux new-session -d -s "$MESA" -c "$DESTINO" -n "$VENTANA" "$CMD" 2>/dev/null \
+        || { echo "error: no se pudo crear la mesa '$MESA'" >&2; exit 70; }
+      WS="$(tmux list-windows -t "=$MESA" -F '#{session_name}:#{window_index}' 2>/dev/null | head -1)"
+    fi
+    ;;
   bg)
-    ( cd "$DESTINO" && claude --dangerously-skip-permissions --bg --session-id "$UUID" "${BRIEF:-hola}" >/dev/null 2>&1 & )
+    ( cd "$DESTINO" && $CLAUDE_BIN --bg --session-id "$UUID" "${BRIEF:-hola}" >/dev/null 2>&1 & )
     ;;
 esac
 
@@ -282,7 +333,10 @@ if [ -z "$NOMBRE" ]; then
   echo "session_id: $UUID"
   echo "workspace: ${WS:-—}"
   [ -n "$SURF" ] && echo "pestaña: $SURF"
-  if [ -n "$DIR_CMUX" ]; then
+  if [ "$MODO" = "tmux" ] && [ -n "$WS" ]; then
+    echo "pantalla:"
+    tmux capture-pane -p -t "$WS" 2>/dev/null | sed '/^[[:space:]]*$/d' | tail -12 | sed 's/^/  /'
+  elif [ -n "$DIR_CMUX" ]; then
     echo "pantalla:"
     if [ -n "$SURF" ]; then
       cmux read-screen --surface "$SURF" 2>/dev/null | sed '/^[[:space:]]*$/d' | tail -12 | sed 's/^/  /'
@@ -301,7 +355,12 @@ echo "modo: $MODO"
 echo "session_id: $UUID"
 echo "workspace: ${WS:-—}"
 [ -n "$SURF" ] && echo "pestaña: $SURF"
-echo "direccion_cmux: ${DIR_CMUX:-—}"
+if [ "$MODO" = "tmux" ]; then
+  # Se le escribe con `tmux send-keys -t <ref> "texto" Enter` y se le lee con `tmux capture-pane -p -t <ref>`.
+  echo "direccion_tmux: ${WS:-—}"
+else
+  echo "direccion_cmux: ${DIR_CMUX:-—}"
+fi
 echo "nombre: $NOMBRE"
 echo "nombre_repetido: $REPETIDO"
 [ -n "$BRIEFFILE" ] && echo "brief_tmp: $BRIEFFILE"

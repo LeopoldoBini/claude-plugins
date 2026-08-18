@@ -18,12 +18,22 @@ sesión", y lo que hay que mandar está en la conversación, no en el argumento.
 - **Qué**: el brief lo redactás vos con lo que se venía hablando — qué hay que hacer, qué se decidió
   ya, qué archivo o ticket mirar primero. Copiar la frase del usuario tal cual deja a la sesión nueva
   arrancando ciega, porque el contexto estaba acá y no viajó.
+- **Si el encargo es correr un comando slash** (`/to-tickets`, `/prd-pipeline`…): el brief **empieza
+  con esa línea** — el comando y sus argumentos primero, el contexto a continuación. El brief entra
+  como prompt tipeado, y eso cuenta como invocación del usuario; pedido en prosa ("corré /x"), la
+  sesión queda bloqueada — los comandos `disable-model-invocation` no puede invocárselos ella misma
+  (medido 18-ago-2026 con /to-tickets). A una sesión ya viva se la destraba igual: `cmux send` con esa
+  misma línea.
+- **Modelo**: si el pedido nombra uno ("con fable"), va en `--model` al abrir. Se fija al nacer:
+  `/model` sólo existe tipeado por el usuario, la sesión no puede cambiárselo a sí misma.
 - **Árbol de trabajo**: la sesión nueva abre en la carpeta tal cual, compartiendo el árbol. Si
   necesita uno propio lo decide ella, que tiene el repo delante y sabe si va a escribir. Abrila en un
   árbol aparte sólo si el usuario lo pide.
-- **Dónde aparece**: lo decide el script. Si ya hay una ventana de cmux abierta en ese repo, entra
-  como pestaña ahí; si no, abre ventana propia. Pasale `--ventana` sólo si el usuario pide que la
-  sesión nueva tenga la suya aparte.
+- **Dónde aparece**: lo decide el script, según qué haya en la máquina. Con cmux (la Mac): pestaña en
+  la ventana que ya está abierta en ese repo, o ventana propia si no hay ninguna. Sin cmux pero con
+  tmux (la flota): ventana nueva en la mesa de ese repo, o mesa nueva si no existe — nunca escribe
+  sobre una ventana que ya estaba, que puede tener trabajo vivo adentro. Pasale `--ventana` sólo si el
+  usuario pide que la sesión nueva tenga la suya aparte.
 
 ## 0. De quién salió la idea
 
@@ -71,6 +81,9 @@ El script devuelve tres cosas; las tres importan:
   `workspace:N` si abrió ventana. `cmux send --surface <ref> "texto"` le escribe y
   `cmux read-screen --surface <ref>` le lee la pantalla (con `--workspace` para las ventanas). Es la
   dirección de respaldo, y la forma de ver qué está haciendo sin interrumpirla.
+- **`direccion_tmux`** — el equivalente en la flota: `mesa:ventana`. `tmux send-keys -t <ref> "texto"
+  Enter` le escribe y `tmux capture-pane -p -t <ref>` le lee la pantalla. Se dirige sólo a la ventana
+  que devolvió el script: mandarle teclas a otra es escribir sobre lo que esté corriendo ahí.
 
 Terminás cuando el usuario tiene en la mano el nombre, la referencia y cuál de las dos usar. Eso es lo
 que después le deja pedirte "preguntale a esa".
