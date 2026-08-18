@@ -61,7 +61,7 @@
     {
       "name": "spawn-sesion",
       "description": "Abrir otra sesión de Claude Code con el pedido adentro y una dirección para hablarle: en cualquier carpeta, acá o en árbol propio. Autoinvocable: el modelo propone, el usuario autoriza el gasto.",
-      "version": "1.5.0",
+      "version": "1.5.1",
       "author": {
         "name": "Leopoldo Bini"
       },

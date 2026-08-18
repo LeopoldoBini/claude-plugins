@@ -67,16 +67,18 @@ Termina con `estado:`, y ahí está todo. Tres finales:
 |---|---|
 | `creada` | Seguir al paso 2. |
 | `ambiguo` / `sin-coincidencias` | Mostrarle los candidatos y preguntarle cuál. Elegir por él es cómo se termina escribiendo en el repo equivocado. |
-| `trabada` | La sesión arrancó y quedó esperando algo en pantalla. Mostrarle esa pantalla y decirle que la conteste desde la pestaña, que ya está abierta. Si prefiere no seguir, cerrala (ver Guardrails). |
+| `trabada` | La sesión arrancó y quedó esperando algo en pantalla. Mostrarle esa pantalla y decirle que la conteste desde la ventana, que ya está abierta. Si prefiere no seguir, cerrala (ver Guardrails). |
 
 ## 2. Quedarte con la dirección
 
-El script devuelve tres cosas; las tres importan:
+El script devuelve el nombre, una referencia y el aviso de nombre repetido. La referencia es de cmux
+o de tmux según dónde haya nacido — nunca las dos:
 
 - **`nombre`** — la dirección de `SendMessage`. Es la vía para conversar de verdad: la respuesta de la
   otra sesión vuelve sola.
 - **`nombre_repetido: si`** — hay otra sesión viva llamada igual (pasa: se midieron dos
-  `app-saltacompra-a4` a la vez). Ahí el nombre ya no distingue, y la dirección buena es la de cmux.
+  `app-saltacompra-a4` a la vez). Ahí el nombre ya no distingue, y la dirección buena es la de la
+  ventana — `direccion_cmux` o `direccion_tmux`, la que haya devuelto.
 - **`direccion_cmux`** — la referencia de cmux, única y estable: `surface:N` si entró como pestaña,
   `workspace:N` si abrió ventana. `cmux send --surface <ref> "texto"` le escribe y
   `cmux read-screen --surface <ref>` le lee la pantalla (con `--workspace` para las ventanas). Es la
@@ -99,4 +101,5 @@ que después le deja pedirte "preguntale a esa".
   ejecuta en esa carpeta sin freno. Nombralo cuando el brief toca algo delicado.
 - **Una sesión abierta sigue abierta hasta que alguien la cierra.** Pestaña: `cmux close-surface
   --surface <ref>`. Ventana: `cmux workspace close <ref>` — cierra todas sus pestañas, así que mirá
-  antes qué más hay adentro. Cuando el trabajo que la justificaba terminó, ofrecé cerrarla.
+  antes qué más hay adentro. En la flota: `tmux kill-window -t <ref>`, que cierra sólo esa ventana y
+  deja la mesa en pie. Cuando el trabajo que la justificaba terminó, ofrecé cerrarla.
