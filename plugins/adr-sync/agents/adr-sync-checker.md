@@ -1,34 +1,6 @@
 ---
 name: adr-sync-checker
-description: Use this agent when an ADR (Architecture Decision Record) has been created or modified and needs to be synced across project documentation. Also use when the user asks to "sync ADRs", "process ADR", "update docs from ADR", or "check ADR consistency". Examples:
-
-  <example>
-  Context: A PostToolUse hook detected an ADR file was written
-  user: (hook systemMessage) "An ADR file was just written: docs/architecture/decisions/ADR-003-auth-strategy.md"
-  assistant: "I'll use the adr-sync-checker agent to process this ADR and update all affected documentation."
-  <commentary>
-  Hook detected ADR write, agent processes it automatically.
-  </commentary>
-  </example>
-
-  <example>
-  Context: User just finished writing an ADR manually
-  user: "I just created ADR-005, can you sync it with the project docs?"
-  assistant: "I'll use the adr-sync-checker agent to cross-reference ADR-005 against your project documentation and update everything."
-  <commentary>
-  User explicitly requests ADR sync, trigger the agent.
-  </commentary>
-  </example>
-
-  <example>
-  Context: User wants to verify all ADRs are reflected in documentation
-  user: "Check if all my ADRs are properly synced"
-  assistant: "I'll use the adr-sync-checker agent to verify all ADRs against your project documentation."
-  <commentary>
-  User wants consistency check, trigger agent for each unsynced ADR.
-  </commentary>
-  </example>
-
+description: Syncs an Architecture Decision Record across project documentation: parses the decision, cross-references every affected doc, updates them, and marks the ADR synced. Launch after an ADR is written or modified, or to audit ADRs already on disk.
 model: inherit
 color: cyan
 tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash"]

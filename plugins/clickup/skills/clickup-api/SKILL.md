@@ -1,6 +1,7 @@
 ---
 name: clickup-api
-description: "Full ClickUp API integration via direct curl. Use when the user asks about tasks, projects, time tracking, or any ClickUp operation. Covers 100+ endpoints: tasks CRUD, hierarchy (teams/spaces/folders/lists), comments, time entries, docs, custom fields, and more. Uses cu-api.sh wrapper with auto-auth and retry."
+description: "ClickUp API v2 over direct curl, no MCP: 100+ endpoints covering task CRUD, hierarchy, comments, time entries, docs and custom fields. Reach for it for any ClickUp read or write. Auth and retry ride in the wrapper script."
+disable-model-invocation: true
 ---
 
 # ClickUp API - Direct Integration

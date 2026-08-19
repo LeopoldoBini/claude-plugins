@@ -1,25 +1,6 @@
 ---
 name: qa-operator
-description: Use this agent to execute QA tests against a running web application using Playwright MCP. Launch this agent when you have a test plan to execute, when the user asks to "run QA tests", "test this URL", "execute the test plan", or when the /qa or /qa-run commands need to execute browser-based testing. The agent navigates pages, interacts with UI elements, takes screenshots, evaluates JavaScript, and produces professional bug reports.
-
-  <example>
-  Context: User has a test plan and wants to execute it
-  user: "Run the test plan against http://localhost:3000"
-  assistant: "I'll launch the qa-operator agent to execute the tests."
-  <commentary>
-  Test plan exists and URL is provided. Launch qa-operator with the plan and URL.
-  </commentary>
-  </example>
-
-  <example>
-  Context: User wants quick QA of a specific page
-  user: "Test the login page at http://localhost:3000/login"
-  assistant: "I'll launch the qa-operator to test the login page."
-  <commentary>
-  No formal plan needed for a single page. qa-operator uses expert instincts.
-  </commentary>
-  </example>
-
+description: Executes QA tests against a running web application with Playwright MCP: navigates pages, drives the UI, captures screenshots, and writes reproducible bug reports. Launch with a test plan to run, or with a URL to test on instinct.
 tools: ["Read", "Glob", "Grep", "Bash"]
 model: inherit
 color: red

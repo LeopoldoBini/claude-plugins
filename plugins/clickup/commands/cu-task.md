@@ -1,6 +1,7 @@
 ---
 description: "Get detailed ClickUp task info by ID"
 argument-hint: "<task ID>"
+disable-model-invocation: true
 ---
 
 # ClickUp Task Detail

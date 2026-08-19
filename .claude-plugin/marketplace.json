@@ -10,7 +10,7 @@
     {
       "name": "adr-sync",
       "description": "Automatic ADR consistency management. Detects ADR creation/modification, cross-references against project docs, updates all affected files, and tracks sync status with frontmatter flags. Includes PostToolUse hook, autonomous sync agent, manual review command, and passive architecture knowledge skill.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Leopoldo Bini"
       },
@@ -20,7 +20,7 @@
     {
       "name": "clickup",
       "description": "Full ClickUp API integration via direct curl. 100+ endpoints without MCP dependency: tasks, time tracking, docs, comments, custom fields, and more. Per-project config via .claude/clickup.local.md.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Leopoldo Bini"
       },
@@ -40,7 +40,7 @@
     {
       "name": "memory-flow",
       "description": "Barrido batch de memoria — /revisar_memoria clasifica las memorias por-archivo (vigente, stale, graduable, obsoleta, fusionable) y propone graduaciones a CLAUDE.md/CONTEXT.md. Solo reporta; aplica con OK explícito del usuario.",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "author": {
         "name": "Leopoldo Bini"
       },
@@ -50,7 +50,7 @@
     {
       "name": "qa-forge",
       "description": "Autonomous QA testing plugin. Analyzes source code to understand features, generates exhaustive test plans (P0-P3), executes tests via Playwright MCP, and produces professional bug reports with screenshots and reproduction steps. Includes qa-planning and qa-execution skills, qa-operator agent, and per-project configuration.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Leopoldo Bini",
         "email": "leobini@gmail.com"

@@ -1,5 +1,5 @@
 ---
-description: "Barrido batch de la memoria del proyecto: detecta memorias stale, obsoletas, duplicadas y graduables a CLAUDE.md/CONTEXT.md. Solo reporta — aplica únicamente con OK explícito del usuario."
+description: "Barrido batch de la memoria del proyecto: detecta memorias stale, obsoletas, duplicadas y graduables a CLAUDE.md o CONTEXT.md. Solo reporta — aplica únicamente con OK explícito del usuario."
 argument-hint: "(sin args = barrido completo) | \"solo Proyecto\" | \"solo Feedback\""
 allowed-tools: "Read, Grep, Glob, Bash"
 disable-model-invocation: true
@@ -29,4 +29,4 @@ También detectar: punteros del índice sin archivo (o archivos sin puntero), `[
 
 Presentar una tabla: memoria | clasificación | evidencia (1 línea) | acción propuesta. Cerrar con el resumen de impacto (cuántas se borran/graduan/corrigen).
 
-**Regla dura:** este comando NO modifica nada por sí solo. El usuario revisa el reporte y decide; recién con su OK explícito se aplican las acciones (editar/borrar archivos de memoria, actualizar el índice, graduar contenido a CLAUDE.md/CONTEXT.md con commit si es archivo de repo).
+**Regla dura:** este comando NO modifica nada por sí solo. El usuario revisa el reporte y decide; recién con su OK explícito se aplican las acciones (editar/borrar archivos de memoria, actualizar el índice, graduar contenido a CLAUDE.md o CONTEXT.md con commit si es archivo de repo).

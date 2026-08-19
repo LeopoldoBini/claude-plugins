@@ -1,7 +1,9 @@
 ---
 name: qa-planning
-description: Use this skill to analyze source code and generate a structured QA test plan before any browser testing begins. Reads routes, components, validation schemas, and API endpoints to produce prioritized test cases (P0-P3) with concrete steps, expected results, and verification methods. Use it when the user wants to know what to test, needs a test strategy, asks for test case generation, wants test coverage analysis, or needs a test plan document — all based on reading code, not executing tests. This skill does NOT open browsers, run Playwright, take screenshots, or execute tests — for that, use qa-execution instead.
+description: Reads source code (routes, components, validation schemas, API endpoints) and produces a prioritized QA test plan (P0-P3) with concrete steps and expected results. Reach for it to decide what to test. Running the tests in a browser is qa-execution.
 ---
+
+<!-- model-invocable: leer código y proponer qué testear es análisis, no ejecución: no abre browser ni despacha subagentes. La ejecución vive en qa-execution, que sí está bloqueada. -->
 
 # QA Planning — Strategic Test Plan Generation
 

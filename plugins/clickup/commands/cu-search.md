@@ -1,6 +1,7 @@
 ---
 description: "Search ClickUp tasks by name or fetch by ID"
 argument-hint: "<search term or task ID>"
+disable-model-invocation: true
 ---
 
 # ClickUp Search

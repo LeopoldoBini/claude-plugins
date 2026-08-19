@@ -1,6 +1,7 @@
 ---
 description: Configure adr-sync plugin for this project — creates .claude/adr-sync.local.md
 allowed-tools: Read, Write, Glob, Bash(mkdir:*)
+disable-model-invocation: true
 ---
 
 Guide the user through configuring the adr-sync plugin for their project.

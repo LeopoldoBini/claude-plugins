@@ -2,6 +2,7 @@
 description: "Execute QA tests with Playwright MCP — run a previous test plan or test a URL directly"
 allowed-tools: Read, Glob, Grep, Task
 argument-hint: "[URL or 'plan' to execute previous test plan]"
+disable-model-invocation: true
 ---
 
 # QA-Forge — Test Execution

@@ -2,6 +2,7 @@
 description: Full ADR consistency review — cross-references ALL ADRs against project documentation
 allowed-tools: Read, Grep, Glob, Write, Edit
 argument-hint: [--fix]
+disable-model-invocation: true
 ---
 
 Perform a comprehensive ADR consistency review for this project, regardless of sync status.

@@ -1,6 +1,6 @@
 ---
 name: clickup-explorer
-description: "Read-only ClickUp bulk operations: mass task searches across multiple lists/spaces, workspace mapping, task audits, and any operation requiring many API calls that would fill the main context. Use when searching across workspace, fetching >50 tasks, or mapping structure. Returns concise summaries with clickable URLs."
+description: "Read-only ClickUp bulk work that would flood the main context: searches across many lists or spaces, workspace mapping, task audits. Launch when fetching over 50 tasks or mapping structure. Returns a concise summary with clickable URLs."
 tools: Bash, Read, Grep, Glob
 model: sonnet
 color: cyan

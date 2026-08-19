@@ -1,5 +1,6 @@
 ---
 description: "Show ClickUp workspace tree (spaces, folders, lists)"
+disable-model-invocation: true
 ---
 
 # ClickUp Spaces Overview

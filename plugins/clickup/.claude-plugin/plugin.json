@@ -1,6 +1,6 @@
 {
   "name": "clickup",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Full ClickUp API integration via direct curl. 100+ endpoints without MCP dependency: tasks, time tracking, docs, comments, custom fields, and more. Per-project config via .claude/clickup.local.md.",
   "author": {
     "name": "Leopoldo Bini"

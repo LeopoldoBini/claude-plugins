@@ -1,6 +1,7 @@
 ---
 name: adr-consistency
-description: Use this skill to synchronize Architecture Decision Records (ADRs) with project documentation. Manages the ADR sync lifecycle — detecting pending ADRs, parsing decisions, updating target files (CLAUDE.md, MASTER-PLAN.md, PROGRESS.md), and marking ADRs as synced via frontmatter (sync_status, last_synced). Use it when ADRs are created or modified, when checking if documentation reflects current architecture decisions, or when propagating architecture decisions across project files.
+description: Methodology for keeping Architecture Decision Records in sync with project docs: detect pending ADRs, parse the decision, update the docs it touches, mark the ADR synced. Reach for it when an ADR is written or when auditing docs against decisions.
+disable-model-invocation: true
 ---
 
 # ADR Consistency Management

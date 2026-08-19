@@ -2,6 +2,7 @@
 description: "Generate a QA test plan by analyzing source code — no browser execution, just strategic planning"
 allowed-tools: Read, Glob, Grep
 argument-hint: "<feature, page, or component to plan tests for>"
+model-invocable: lee código y devuelve un plan — no abre browser, no despacha subagentes, no escribe en el proyecto
 ---
 
 # QA-Forge — Test Plan Generation

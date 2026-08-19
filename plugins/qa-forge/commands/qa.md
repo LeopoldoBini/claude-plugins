@@ -2,6 +2,7 @@
 description: "Full QA workflow — analyze code, generate test plan, execute tests with Playwright, produce professional report"
 allowed-tools: Read, Glob, Grep, Bash, Edit, Write, Task
 argument-hint: "<feature, page, or URL to test>"
+disable-model-invocation: true
 ---
 
 # QA-Forge — Full Workflow
@@ -30,7 +31,7 @@ You are orchestrating a complete QA cycle for this project. Follow each phase in
 
 Use the **qa-planning** skill knowledge to analyze the codebase.
 
-1. **Detect the framework** — Check `package.json`, config files, directory structure. Use the patterns from the `qa-planning` skill's `references/framework-detection-guide.md` if needed.
+1. **Detect the framework** — Check `package.json`, config files, directory structure. Use the patterns from `skills/qa-planning/references/framework-detection-guide.md` if needed.
 
 2. **Find the target feature** — Based on `$ARGUMENTS`, locate:
    - Route files / page components

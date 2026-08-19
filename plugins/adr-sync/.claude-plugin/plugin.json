@@ -1,6 +1,6 @@
 {
   "name": "adr-sync",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Automatic ADR consistency management. Detects ADR creation/modification, cross-references against project docs, updates all affected files, and tracks sync status with frontmatter flags. Includes PostToolUse hook, autonomous sync agent, manual review command, and passive architecture knowledge skill.",
   "author": {
     "name": "Leopoldo Bini"

@@ -4,6 +4,22 @@ QA-specific patterns using Playwright MCP tools. Not generic Playwright docs —
 
 ---
 
+## Tool Surface
+
+| Tool | Use it for |
+|------|------------|
+| `browser_navigate` | Go to a URL. Let the page finish loading before interacting. |
+| `browser_snapshot` | Read the accessibility tree — what exists, what is clickable, what text is on screen. |
+| `browser_click` | Click an element identified from the snapshot. |
+| `browser_type` | Type into an input. |
+| `browser_select_option` | Choose from a dropdown. |
+| `browser_press_key` | Send a key (Enter, Tab, Escape, Alt+Left). |
+| `browser_evaluate` | Run JavaScript — console errors, element state, overflow measurement. |
+| `browser_take_screenshot` | Visual evidence. Always pass `filename`. |
+| `browser_resize` | Change viewport dimensions for responsive testing. |
+
+---
+
 ## Core Workflow Pattern
 
 Every QA test follows this cycle:

@@ -1,5 +1,6 @@
 ---
 description: "Quick ClickUp dashboard - tasks grouped by status"
+disable-model-invocation: true
 ---
 
 # ClickUp Status Dashboard

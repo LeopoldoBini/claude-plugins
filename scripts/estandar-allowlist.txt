@@ -1,8 +1,68 @@
 # Allowlist del estándar de calidad — insumo del check-estandar.sh de leo-stack
-# Formato: secciones [externos]/[retirados]/[paths], un ítem por línea, sin barra ni namespace.
+# Formato: secciones [externos]/[retirados]/[paths], un ítem por línea, sin barra
+# ni namespace. [paths] acepta globs.
 
 [externos]
+# Barras que no nombran un comando de este repo.
+
 # spawn-sesion los nombra como ejemplos de encargo que la sesión nueva no puede autoinvocarse
 to-tickets        # mattpocock-skills
 prd-pipeline      # host-orchestrator (leo-private)
 model             # Claude Code, built-in
+code-review       # Claude Code, built-in — dark-pattern-scan lo nombra como pieza hermana
+
+# Endpoints de la API de ClickUp, citados como sintaxis que el modelo copia literal
+team
+doc
+user
+endpoint
+
+# Rutas URL de la app consumidora, en el diagrama archivo→ruta de qa-planning
+about
+login
+
+[paths]
+# Archivos del repo CONSUMIDOR. Un plugin corre en otro proyecto: nombrar sus
+# archivos es su trabajo, no sediment.
+
+# Config y manifiestos que los plugins detectan
+package.json
+angular.json
+next.config.js
+nuxt.config.ts
+svelte.config.js
+vite.config.ts
+Next.js            # nombre del framework, leído como archivo por terminar en .js
+
+# Documentación del proyecto que adr-sync y memory-flow leen y actualizan
+CLAUDE.md
+CHANGELOG.md
+MEMORY.md
+MASTER-PLAN.md
+PROGRESS.md
+docs/plan/MASTER-PLAN.md
+docs/plan/PROGRESS.md
+
+# Config por proyecto que los plugins escriben desde sus templates
+*.local.md
+
+# Fuentes que qa-planning enseña a reconocer, por framework
+middleware.ts
+server.ts
+page.server.ts
+src/hooks.server.ts
+router/index.ts
+src/router/index.ts
+api/data.ts
+api/users.ts
+api/users/route.ts
+app.routes.ts
+app-routing.module.ts
+src/app/app-routing.module.ts
+*.component.ts
+*.module.ts
+*.service.ts
+
+# Salida que yt-transcript escribe junto al transcript
+summary.md
+CONTEXT.md
