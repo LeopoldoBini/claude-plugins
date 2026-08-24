@@ -19,11 +19,16 @@ sesión", y lo que hay que mandar está en la conversación, no en el argumento.
   ya, qué archivo o ticket mirar primero. Copiar la frase del usuario tal cual deja a la sesión nueva
   arrancando ciega, porque el contexto estaba acá y no viajó.
 - **Si el encargo es correr un comando slash** (`/to-tickets`, `/prd-pipeline`…): el brief **empieza
-  con esa línea** — el comando y sus argumentos primero, el contexto a continuación. El brief entra
-  como prompt tipeado, y eso cuenta como invocación del usuario; pedido en prosa ("corré /x"), la
-  sesión queda bloqueada — los comandos `disable-model-invocation` no puede invocárselos ella misma
-  (medido 18-ago-2026 con /to-tickets). A una sesión ya viva se la destraba igual: `cmux send` con esa
-  misma línea.
+  con esa línea** — el comando y sus argumentos primero, el contexto a continuación. El nombre va
+  **completo, con el prefijo del plugin** (`mattpocock-skills:prototype`, y no el `prototype` a
+  secas con que lo nombra el usuario, que habla corto): se resuelve de la lista de skills
+  disponibles. Un comando que no existe hace que la sesión nueva **descarte el brief entero** —el
+  comando y todo el texto que lo sigue— y se quede muda, con la pantalla mostrando el brief como si
+  lo hubiera leído (medido 24-ago-2026); de ahí la verificación del paso 1. El brief
+  entra como prompt tipeado, y eso cuenta como invocación del usuario; pedido en prosa ("corré /x"),
+  la sesión queda bloqueada — los comandos `disable-model-invocation` no puede invocárselos ella
+  misma (medido 18-ago-2026 con /to-tickets). A una sesión ya viva se la destraba igual: `cmux send`
+  con esa misma línea.
 - **Modelo**: si el pedido nombra uno ("con fable"), va en `--model` al abrir. Se fija al nacer:
   `/model` sólo existe tipeado por el usuario, la sesión no puede cambiárselo a sí misma.
 - **Árbol de trabajo**: la sesión nueva abre en la carpeta tal cual, compartiendo el árbol. Si
@@ -65,9 +70,21 @@ Termina con `estado:`, y ahí está todo. Tres finales:
 
 | `estado:` | Qué hacer |
 |---|---|
-| `creada` | Seguir al paso 2. |
+| `creada` | Confirmar que el brief entró (abajo) y seguir al paso 2. |
 | `ambiguo` / `sin-coincidencias` | Mostrarle los candidatos y preguntarle cuál. Elegir por él es cómo se termina escribiendo en el repo equivocado. |
 | `trabada` | La sesión arrancó y quedó esperando algo en pantalla. Mostrarle esa pantalla y decirle que la conteste desde la ventana, que ya está abierta. Si prefiere no seguir, cerrala (ver Guardrails). |
+
+**`creada` habla del proceso, no del encargo**: dice que la sesión arrancó, no que haya leído el
+brief. Eso se confirma en su bitácora, con el `session_id` que devolvió el script:
+
+```bash
+f=$(find ~/.claude/projects -name "<session_id>.jsonl" | head -1)
+grep -c "Unknown command" "$f"   # 0 = el brief entró
+```
+
+Con hits, la sesión está viva y vacía: cerrala (ver Guardrails), corregí el nombre del comando y
+volvé a abrirla. La bitácora es la única fuente honesta acá — la pantalla muestra el brief
+renderizado aunque se haya descartado, y el contador de contexto en 0% es la otra señal.
 
 ## 2. Quedarte con la dirección
 
