@@ -359,17 +359,29 @@ case "$MODO" in
         || { echo "error: no se pudo crear la mesa '$MESA'" >&2; exit 70; }
       WS="$(tmux list-windows -t "=$MESA" -F '#{window_id}' 2>/dev/null | head -1)"
     fi
-    # La primera sesión en una carpeta que Claude nunca abrió se traba en «Do you trust the files in
-    # this folder?» aun con --dangerously-skip-permissions (medido 26-ago-2026 en la devbox), y el
-    # brief se queda sin entrar. Un Enter la destraba. Se manda sólo si esa pregunta está en pantalla:
-    # a ciegas sería despachar lo que sea que haya cargado ahí.
+    # La primera sesión en una carpeta que Claude nunca abrió levanta el diálogo de confianza —«Is
+    # this a project you created or one you trust?»— y el brief se queda afuera. Lo levanta incluso
+    # con --dangerously-skip-permissions (medido 29-ago-2026 en la devbox, sobre ~/cuenta-norte).
+    #
+    # La opción marcada al abrir es «No, exit»: un Enter a ciegas MATA la sesión. Por eso se navega
+    # hasta que la flecha esté sobre «Yes, I trust this folder» y recién ahí se confirma, y sólo si
+    # ese diálogo está en pantalla. Confiar es coherente con cómo nace la sesión: la carpeta la
+    # eligió quien la abrió, y ya arranca sin preguntar permisos.
     for _ in $(seq 1 24); do
       PANTALLA="$(tmux capture-pane -p -t "$WS" 2>/dev/null || true)"
-      if printf '%s' "$PANTALLA" | grep -qiE 'trust the files|confiás en (los archivos|esta carpeta)'; then
-        tmux send-keys -t "$WS" Enter 2>/dev/null || true
+      if printf '%s' "$PANTALLA" | grep -q 'trust this folder'; then
+        for _ in $(seq 1 4); do
+          printf '%s' "$PANTALLA" | grep -q '❯.*trust this folder' && break
+          tmux send-keys -t "$WS" Down 2>/dev/null || true
+          sleep 0.4
+          PANTALLA="$(tmux capture-pane -p -t "$WS" 2>/dev/null || true)"
+        done
+        if printf '%s' "$PANTALLA" | grep -q '❯.*trust this folder'; then
+          tmux send-keys -t "$WS" Enter 2>/dev/null || true
+        fi
         break
       fi
-      printf '%s' "$PANTALLA" | grep -qiE 'for shortcuts|bypass permissions' && break
+      printf '%s' "$PANTALLA" | grep -qE 'for shortcuts|bypass permissions' && break
       sleep 0.5
     done
     ;;
