@@ -1,5 +1,5 @@
 ---
-description: "Abrir otra sesión de Claude Code con el pedido adentro y una dirección para seguir hablándole. Usar si pide que algo lo siga o lo haga otra sesión, acá o en otra carpeta. Leer o revisar va a subagente."
+description: "Abrir otra sesión con el pedido adentro y dirección para hablarle: acá, en otra carpeta o en otra máquina de la flota. Usar si pide que algo siga o lo haga otra sesión. Leer o revisar va a subagente."
 argument-hint: "<repo> <lo que le querés pedir>"
 model-invocable: el modelo propone abrir la sesión; el gasto lo autoriza el usuario (paso 0)
 allowed-tools: "Bash, Read, AskUserQuestion, ListAgents, SendMessage"
@@ -29,6 +29,11 @@ sesión", y lo que hay que mandar está en la conversación, no en el argumento.
   la sesión queda bloqueada — los comandos `disable-model-invocation` no puede invocárselos ella
   misma (medido 18-ago-2026 con /to-tickets). A una sesión ya viva se la destraba igual: `cmux send`
   con esa misma línea.
+- **En qué máquina**: acá, salvo que el trabajo tenga que sobrevivir a que la Mac se apague —una
+  corrida AFK larga— o que el pedido nombre una máquina de la flota. Ahí va `--host <maquina>`
+  (`devbox`), y todo pasa allá: el repo se resuelve contra ESE disco, con esas rutas. La sesión
+  remota no aparece en `ListAgents` ni escucha `SendMessage`; su única dirección es la ventana de
+  tmux, y el script devuelve los comandos ya armados para hablarle.
 - **Modelo**: si el pedido nombra uno ("con fable"), va en `--model` al abrir. Se fija al nacer:
   `/model` sólo existe tipeado por el usuario, la sesión no puede cambiárselo a sí misma.
 - **Árbol de trabajo**: la sesión nueva abre en la carpeta tal cual, compartiendo el árbol. Si
@@ -72,6 +77,7 @@ Termina con `estado:`, y ahí está todo. Tres finales:
 |---|---|
 | `creada` | Confirmar que el brief entró (abajo) y seguir al paso 2. |
 | `ambiguo` / `sin-coincidencias` | Mostrarle los candidatos y preguntarle cuál. Elegir por él es cómo se termina escribiendo en el repo equivocado. |
+| `sin-host` | La otra máquina no contesta el ssh. Decíselo con el host y el detalle; no reintentes ni la abras acá en su lugar — dónde corre el trabajo lo decide él. |
 | `trabada` | La sesión arrancó y quedó esperando algo en pantalla. Mostrarle esa pantalla y decirle que la conteste desde la ventana, que ya está abierta. Si prefiere no seguir, cerrala (ver Guardrails). |
 
 **`creada` habla del proceso, no del encargo**: dice que la sesión arrancó, no que haya leído el
@@ -81,6 +87,10 @@ brief. Eso se confirma en su bitácora, con el `session_id` que devolvió el scr
 f=$(find ~/.claude/projects -name "<session_id>.jsonl" | head -1)
 grep -c "Unknown command" "$f"   # 0 = el brief entró
 ```
+
+Con `--host`, ese mismo grep vuelve ya armado en la línea `verificar:` del script, apuntado al disco
+de la otra máquina: corrélo tal cual. El número al final de la línea es la respuesta —`grep` termina
+en 1 cuando no encuentra nada, que es justo el caso bueno.
 
 Con hits, la sesión está viva y vacía: cerrala (ver Guardrails), corregí el nombre del comando y
 volvé a abrirla. La bitácora es la única fuente honesta acá — la pantalla muestra el brief
@@ -100,9 +110,16 @@ o de tmux según dónde haya nacido — nunca las dos:
   `workspace:N` si abrió ventana. `cmux send --surface <ref> "texto"` le escribe y
   `cmux read-screen --surface <ref>` le lee la pantalla (con `--workspace` para las ventanas). Es la
   dirección de respaldo, y la forma de ver qué está haciendo sin interrumpirla.
-- **`direccion_tmux`** — el equivalente en la flota: `mesa:ventana`. `tmux send-keys -t <ref> "texto"
-  Enter` le escribe y `tmux capture-pane -p -t <ref>` le lee la pantalla. Se dirige sólo a la ventana
-  que devolvió el script: mandarle teclas a otra es escribir sobre lo que esté corriendo ahí.
+- **`direccion_tmux`** — el equivalente en la flota: el `window_id` de tmux, un `@7`. `tmux send-keys
+  -t @7 "texto" Enter` le escribe y `tmux capture-pane -p -t @7` le lee la pantalla. Se dirige sólo a
+  la ventana que devolvió el script: mandarle teclas a otra es escribir sobre lo que esté corriendo
+  ahí. El índice que muestra tmux en pantalla (`mesa:3`) no sirve como dirección —se renumera cuando
+  se cierra otra ventana de la mesa, y una guardada pasa a apuntar a la sesión del vecino.
+- **`host` + `nombre_remoto`** — nació en otra máquina. El nombre sirve para reconocerla allá; como
+  dirección no existe de este lado. Lo que se usa son las líneas `hablarle:`, `leerle:` y
+  `verificar:`, que ya vienen con el host y la ventana adentro: se corren tal cual. Un `send-keys`
+  largo a veces deja el texto tipeado sin despachar, así que después de escribirle leé la pantalla, y
+  si el prompt quedó cargado mandá el Enter solo.
 
 Terminás cuando el usuario tiene en la mano el nombre, la referencia y cuál de las dos usar. Eso es lo
 que después le deja pedirte "preguntale a esa".
@@ -118,5 +135,5 @@ que después le deja pedirte "preguntale a esa".
   ejecuta en esa carpeta sin freno. Nombralo cuando el brief toca algo delicado.
 - **Una sesión abierta sigue abierta hasta que alguien la cierra.** Pestaña: `cmux close-surface
   --surface <ref>`. Ventana: `cmux workspace close <ref>` — cierra todas sus pestañas, así que mirá
-  antes qué más hay adentro. En la flota: `tmux kill-window -t <ref>`, que cierra sólo esa ventana y
-  deja la mesa en pie. Cuando el trabajo que la justificaba terminó, ofrecé cerrarla.
+  antes qué más hay adentro. En la flota: `tmux kill-window -t @7`, que cierra sólo esa ventana y
+  deja la mesa en pie —con `ssh <host>` adelante si nació en otra máquina. Cuando el trabajo que la justificaba terminó, ofrecé cerrarla.

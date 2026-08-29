@@ -10,6 +10,7 @@ set -euo pipefail
 ROOTS_DEFAULT="$HOME/Proyectos $HOME/cuenta-norte"
 COLOR_SPAWN="Indigo"   # color reservado: "esta ventana la abrió otra sesión, no Leo"
 MODO="cmux"
+HOST=""
 REPO=""
 TITULO=""
 BRIEF=""
@@ -24,6 +25,8 @@ uso: spawn.sh --repo <ruta-o-fragmento> [opciones]
 
   --repo <r>       Carpeta donde abrirla (`.` = acá), o un fragmento a buscar entre los repos git.
                    Cualquier carpeta sirve: el contexto de trabajo no siempre es un repo.
+  --host <h>       Abrirla en otra máquina de la flota (un host de ~/.ssh/config, p. ej. `devbox`).
+                   El repo se resuelve ALLÁ, contra el disco de esa máquina.
   --brief <t>      Lo que se le pide a la sesión nueva. Sin esto arranca ociosa.
   --brief-file <f> Lee el brief de un archivo — el traspaso de /handoff entra derecho acá.
   --model <m>      Modelo de la sesión (fable, opus, sonnet…). Se fija al nacer: desde adentro
@@ -41,6 +44,10 @@ Sin cmux pero con tmux (la flota), abre una VENTANA en la mesa de tmux de ese re
 espeja desde la Mac. Sin mesa para ese repo, crea una. La ventana es siempre nueva: no se escribe
 sobre una que ya existe.
 
+Con --host este mismo script viaja por ssh y corre del otro lado, así la versión del plugin que
+haya instalada allá no importa. La sesión remota NO se ve con ListAgents ni recibe SendMessage: se
+le habla por `ssh <host> tmux send-keys -t <window_id>`.
+
 Busca repos en $SPAWN_ROOTS (default: ~/Proyectos ~/cuenta-norte).
 Los worktrees viven en $SPAWN_WORKTREES (default: ~/.spawn-worktrees), fuera del repo.
 Salida: bloques `clave: valor`. Sale 2 si el fragmento es ambiguo, listando los candidatos.
@@ -50,6 +57,7 @@ EOF
 while [ $# -gt 0 ]; do
   case "$1" in
     --repo)   REPO="${2:-}"; shift 2 ;;
+    --host)   HOST="${2:-}"; shift 2 ;;
     --brief)  BRIEF="${2:-}"; shift 2 ;;
     --brief-file)
       [ -f "${2:-}" ] || { echo "error: no existe el archivo de brief '${2:-}'" >&2; exit 66; }
@@ -66,6 +74,65 @@ while [ $# -gt 0 ]; do
 done
 
 [ -n "$REPO" ] || { echo "error: falta --repo" >&2; exit 64; }
+
+# --- otra máquina de la flota -----------------------------------------------
+# El trabajo entero pasa allá: este script se copia a sí mismo por ssh y corre del otro lado, contra
+# el disco de esa máquina. Por eso la versión del plugin instalada allá da igual — van desparejas y
+# se quedan atrás (medido 27-ago-2026: 1.5.1 en la devbox, 1.5.2 en la Mac).
+#
+# `bash -lc` no es un detalle de estilo: `claude` vive en un multishell de fnm que sólo existe en un
+# shell de login, así que un ssh a secas no lo encuentra.
+if [ -n "$HOST" ]; then
+  ssh -o BatchMode=yes -o ConnectTimeout=10 "$HOST" true 2>/dev/null || {
+    echo "estado: sin-host"
+    echo "host: $HOST"
+    echo "detalle: ssh no conecta — máquina apagada, VPN caída o clave no aceptada"
+    exit 4
+  }
+
+  TAG="$(date +%s)-$$"
+  SCRIPT_REMOTO="/tmp/spawn-$TAG.sh"
+  ssh -o BatchMode=yes "$HOST" "cat > $SCRIPT_REMOTO" < "$0" \
+    || { echo "error: no se pudo subir el script a $HOST" >&2; exit 70; }
+
+  ARGS="--repo $(printf '%q' "$REPO")"
+  if [ -n "$BRIEF" ]; then
+    # El brief viaja por archivo también en el salto: metido en la línea de ssh lo mastican dos
+    # shells seguidos (el local y el remoto) y los acentos y comillas no sobreviven.
+    BRIEF_REMOTO="/tmp/spawn-brief-$TAG.md"
+    printf '%s' "$BRIEF" | ssh -o BatchMode=yes "$HOST" "cat > $BRIEF_REMOTO" \
+      || { echo "error: no se pudo subir el brief a $HOST" >&2; exit 70; }
+    ARGS="$ARGS --brief-file $BRIEF_REMOTO"
+  fi
+  [ -n "$MODEL" ] && ARGS="$ARGS --model $(printf '%q' "$MODEL")"
+  [ -n "$TITULO" ] && ARGS="$ARGS --titulo $(printf '%q' "$TITULO")"
+  [ "$WORKTREE" -eq 1 ] && ARGS="$ARGS --worktree"
+  [ "$FORZAR_VENTANA" -eq 1 ] && ARGS="$ARGS --ventana"
+  [ "$MODO" = "bg" ] && ARGS="$ARGS --bg"
+  [ "$DRY" -eq 1 ] && ARGS="$ARGS --dry-run"
+
+  set +e
+  SALIDA_REMOTA="$(ssh -o BatchMode=yes "$HOST" "bash -lc $(printf '%q' "bash $SCRIPT_REMOTO $ARGS")" 2>&1)"
+  RC=$?
+  set -e
+  ssh -o BatchMode=yes "$HOST" "rm -f $SCRIPT_REMOTO" >/dev/null 2>&1 || true
+
+  echo "host: $HOST"
+  # El nombre sale renombrado a propósito: `claude agents` y `SendMessage` sólo ven las sesiones de
+  # ESTA máquina, así que el nombre que le tocó allá no es una dirección desde acá — dejarlo como
+  # `nombre:` invita a mandarle un mensaje que no llega a ningún lado.
+  printf '%s\n' "$SALIDA_REMOTA" | sed 's/^nombre:/nombre_remoto:/; s/^nombre_repetido:/nombre_remoto_repetido:/'
+  DIR_REMOTA="$(printf '%s\n' "$SALIDA_REMOTA" | sed -n 's/^direccion_tmux: //p')"
+  if [ -n "$DIR_REMOTA" ] && [ "$DIR_REMOTA" != "—" ]; then
+    echo "hablarle: ssh $HOST 'tmux send-keys -t $DIR_REMOTA \"texto\" Enter'"
+    echo "leerle: ssh $HOST 'tmux capture-pane -p -t $DIR_REMOTA'"
+  fi
+  # La bitácora es la única prueba de que el brief entró, y vive en el disco de la otra máquina.
+  SID_REMOTO="$(printf '%s\n' "$SALIDA_REMOTA" | sed -n 's/^session_id: //p')"
+  [ -n "$SID_REMOTO" ] && \
+    echo "verificar: ssh $HOST 'grep -rc \"Unknown command\" ~/.claude/projects --include=$SID_REMOTO.jsonl'"
+  exit $RC
+fi
 
 # --- resolver el destino ----------------------------------------------------
 # Una ruta existente se toma tal cual, tenga .git o no: el contexto adecuado para trabajar es a veces
@@ -275,9 +342,13 @@ case "$MODO" in
     # Una mesa de tmux puede tener trabajo vivo adentro, así que acá NUNCA se escribe sobre una
     # ventana que ya existe: la sesión nueva nace en la suya. El comando va puesto al crearla — no
     # hay prompt frío que despertar, que es donde send-keys se come los primeros caracteres.
+    # La dirección que se devuelve es el window_id (`@N`), no `mesa:índice`: los índices se
+    # RENUMERAN cuando se cierra otra ventana de la mesa, y una dirección guardada pasa a apuntar a
+    # la sesión del vecino (medido 26-ago-2026: un monitor terminó leyendo la pantalla equivocada).
+    # El window_id no se recicla mientras la ventana viva.
     VENTANA="↩ $TITULO"
     if [ -n "$MESA" ]; then
-      WS="$(tmux new-window -P -F '#{session_name}:#{window_index}' -t "$MESA:" -c "$DESTINO" -n "$VENTANA" "$CMD" 2>&1)" \
+      WS="$(tmux new-window -P -F '#{window_id}' -t "$MESA:" -c "$DESTINO" -n "$VENTANA" "$CMD" 2>&1)" \
         || { echo "error: no se pudo abrir la ventana en la mesa '$MESA'" >&2; exit 70; }
     else
       # tmux no admite '.' ni ':' en el nombre de una mesa: los usa para direccionar ventana y panel.
@@ -286,8 +357,21 @@ case "$MODO" in
         && { echo "error: ya existe una mesa llamada '$MESA' que no está en ese repo" >&2; exit 70; }
       tmux new-session -d -s "$MESA" -c "$DESTINO" -n "$VENTANA" "$CMD" 2>/dev/null \
         || { echo "error: no se pudo crear la mesa '$MESA'" >&2; exit 70; }
-      WS="$(tmux list-windows -t "=$MESA" -F '#{session_name}:#{window_index}' 2>/dev/null | head -1)"
+      WS="$(tmux list-windows -t "=$MESA" -F '#{window_id}' 2>/dev/null | head -1)"
     fi
+    # La primera sesión en una carpeta que Claude nunca abrió se traba en «Do you trust the files in
+    # this folder?» aun con --dangerously-skip-permissions (medido 26-ago-2026 en la devbox), y el
+    # brief se queda sin entrar. Un Enter la destraba. Se manda sólo si esa pregunta está en pantalla:
+    # a ciegas sería despachar lo que sea que haya cargado ahí.
+    for _ in $(seq 1 24); do
+      PANTALLA="$(tmux capture-pane -p -t "$WS" 2>/dev/null || true)"
+      if printf '%s' "$PANTALLA" | grep -qiE 'trust the files|confiás en (los archivos|esta carpeta)'; then
+        tmux send-keys -t "$WS" Enter 2>/dev/null || true
+        break
+      fi
+      printf '%s' "$PANTALLA" | grep -qiE 'for shortcuts|bypass permissions' && break
+      sleep 0.5
+    done
     ;;
   bg)
     ( cd "$DESTINO" && $CLAUDE_BIN --bg --session-id "$UUID" "${BRIEF:-hola}" >/dev/null 2>&1 & )
@@ -331,7 +415,8 @@ if [ -z "$NOMBRE" ]; then
   echo "repo: $DESTINO"
   echo "modo: $MODO"
   echo "session_id: $UUID"
-  echo "workspace: ${WS:-—}"
+  [ "$MODO" = "tmux" ] && echo "mesa: ${MESA:-—}"
+  echo "ventana: ${WS:-—}"
   [ -n "$SURF" ] && echo "pestaña: $SURF"
   if [ "$MODO" = "tmux" ] && [ -n "$WS" ]; then
     echo "pantalla:"
@@ -353,12 +438,13 @@ echo "repo: $DESTINO"
 [ -n "$RAMA" ] && echo "rama: $RAMA"
 echo "modo: $MODO"
 echo "session_id: $UUID"
-echo "workspace: ${WS:-—}"
 [ -n "$SURF" ] && echo "pestaña: $SURF"
 if [ "$MODO" = "tmux" ]; then
   # Se le escribe con `tmux send-keys -t <ref> "texto" Enter` y se le lee con `tmux capture-pane -p -t <ref>`.
+  echo "mesa: ${MESA:-—}"
   echo "direccion_tmux: ${WS:-—}"
 else
+  echo "workspace: ${WS:-—}"
   echo "direccion_cmux: ${DIR_CMUX:-—}"
 fi
 echo "nombre: $NOMBRE"
