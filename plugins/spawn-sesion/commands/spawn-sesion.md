@@ -31,19 +31,19 @@ sesión", y lo que hay que mandar está en la conversación, no en el argumento.
   con esa misma línea.
 - **En qué máquina**: acá, salvo que el trabajo tenga que sobrevivir a que la Mac se apague —una
   corrida AFK larga— o que el pedido nombre una máquina de la flota. Ahí va `--host <maquina>`
-  (`devbox`), y todo pasa allá: el repo se resuelve contra ESE disco, con esas rutas. La sesión
-  remota no aparece en `ListAgents` ni escucha `SendMessage`; su única dirección es la ventana de
-  tmux, y el script devuelve los comandos ya armados para hablarle.
+  (`devbox`), y todo pasa allá: el repo se resuelve contra ESE disco, con esas rutas.
+- **Cómo vuelve la respuesta desde otra máquina**: nace registrada en la cuenta y `SendMessage` la
+  alcanza por su `nombre`. Al revés no te ve, así que para que reporte sola al terminar pasale
+  `--reportar-a bridge:session_<id>`, el del enlace de esta sesión. Sin esa dirección el retorno se
+  abre igual: un `SendMessage` apenas nace le deja por dónde contestarte.
 - **Modelo**: si el pedido nombra uno ("con fable"), va en `--model` al abrir. Se fija al nacer:
   `/model` sólo existe tipeado por el usuario, la sesión no puede cambiárselo a sí misma.
 - **Árbol de trabajo**: la sesión nueva abre en la carpeta tal cual, compartiendo el árbol. Si
   necesita uno propio lo decide ella, que tiene el repo delante y sabe si va a escribir. Abrila en un
   árbol aparte sólo si el usuario lo pide.
-- **Dónde aparece**: lo decide el script, según qué haya en la máquina. Con cmux (la Mac): pestaña en
-  la ventana que ya está abierta en ese repo, o ventana propia si no hay ninguna. Sin cmux pero con
-  tmux (la flota): ventana nueva en la mesa de ese repo, o mesa nueva si no existe — nunca escribe
-  sobre una ventana que ya estaba, que puede tener trabajo vivo adentro. Pasale `--ventana` sólo si el
-  usuario pide que la sesión nueva tenga la suya aparte.
+- **Dónde aparece**: lo decide el script según lo que haya en esa máquina —pestaña al lado de la que
+  la pidió, o ventana propia— y nunca escribe sobre una que ya estaba, que puede tener trabajo vivo
+  adentro. Pasale `--ventana` sólo si el usuario pide que tenga la suya aparte.
 
 ## 0. De quién salió la idea
 
@@ -115,11 +115,14 @@ o de tmux según dónde haya nacido — nunca las dos:
   la ventana que devolvió el script: mandarle teclas a otra es escribir sobre lo que esté corriendo
   ahí. El índice que muestra tmux en pantalla (`mesa:3`) no sirve como dirección —se renumera cuando
   se cierra otra ventana de la mesa, y una guardada pasa a apuntar a la sesión del vecino.
-- **`host` + `nombre_remoto`** — nació en otra máquina. El nombre sirve para reconocerla allá; como
-  dirección no existe de este lado. Lo que se usa son las líneas `hablarle:`, `leerle:` y
-  `verificar:`, que ya vienen con el host y la ventana adentro: se corren tal cual. Un `send-keys`
-  largo a veces deja el texto tipeado sin despachar, así que después de escribirle leé la pantalla, y
-  si el prompt quedó cargado mandá el Enter solo.
+- **`host`** — nació en otra máquina, y su `nombre` es el del registro en la cuenta: confirmá con
+  `ListAgents` que figura como `Remote Control · running`, que es la prueba de que el canal quedó
+  abierto. Las líneas `leerle:`, `hablarle_por_tmux:` y `verificar:` vienen con el host y la ventana
+  adentro y se corren tal cual; el tmux es el respaldo para cuando el canal no responde. Un
+  `send-keys` largo a veces deja el texto tipeado sin despachar (medido de nuevo hoy), así que
+  después de escribirle por esa vía leé la pantalla y mandá el Enter solo si quedó cargado.
+  `nombre_alla` es el nombre que le tocó en su propia máquina: sirve para reconocerla allá, no para
+  hablarle desde acá.
 
 Terminás cuando el usuario tiene en la mano el nombre, la referencia y cuál de las dos usar. Eso es lo
 que después le deja pedirte "preguntale a esa".

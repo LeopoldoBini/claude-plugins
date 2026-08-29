@@ -11,6 +11,8 @@ ROOTS_DEFAULT="$HOME/Proyectos $HOME/cuenta-norte"
 COLOR_SPAWN="Indigo"   # color reservado: "esta ventana la abrió otra sesión, no Leo"
 MODO="cmux"
 HOST=""
+RC_NOMBRE=""
+REPORTAR_A=""
 REPO=""
 TITULO=""
 BRIEF=""
@@ -31,6 +33,11 @@ uso: spawn.sh --repo <ruta-o-fragmento> [opciones]
   --brief-file <f> Lee el brief de un archivo — el traspaso de /handoff entra derecho acá.
   --model <m>      Modelo de la sesión (fable, opus, sonnet…). Se fija al nacer: desde adentro
                    la sesión no puede cambiárselo (/model sólo existe tipeado por el usuario).
+  --remote-control [n]  Registra la sesión en la cuenta con ese nombre, y ahí `SendMessage` la
+                   alcanza aunque haya nacido en otra máquina. Con --host va puesto siempre.
+  --reportar-a <d> Dirección de retorno a la que la sesión nueva manda el resultado al terminar
+                   (`bridge:session_…`, la del enlace de esta sesión). El aviso automático de
+                   "ya está" no cruza máquinas: lo manda ella o no llega ninguno.
   --worktree       Árbol de trabajo propio del mismo repo, para que no se pisen dos sesiones.
   --ventana        Ventana propia aunque ya haya una abierta en ese repo.
   --titulo <t>     Título de la ventana de cmux. Default: nombre de la carpeta. No aplica a pestañas.
@@ -58,6 +65,8 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --repo)   REPO="${2:-}"; shift 2 ;;
     --host)   HOST="${2:-}"; shift 2 ;;
+    --remote-control) RC_NOMBRE="${2:-}"; shift 2 ;;
+    --reportar-a) REPORTAR_A="${2:-}"; shift 2 ;;
     --brief)  BRIEF="${2:-}"; shift 2 ;;
     --brief-file)
       [ -f "${2:-}" ] || { echo "error: no existe el archivo de brief '${2:-}'" >&2; exit 66; }
@@ -74,6 +83,18 @@ while [ $# -gt 0 ]; do
 done
 
 [ -n "$REPO" ] || { echo "error: falta --repo" >&2; exit 64; }
+
+# El aviso de "terminé" que el harness manda solo vale para sesiones de esta máquina. Cruzando
+# máquinas lo manda la sesión nueva o no llega ninguno, así que la instrucción viaja en el brief.
+if [ -n "$REPORTAR_A" ] && [ -n "$BRIEF" ]; then
+  BRIEF="$BRIEF
+
+---
+Cuando termines —o si te trabás y no podés seguir— mandale el resultado a la sesión que te abrió:
+SendMessage con \`to\` igual a esta cadena completa: \`$REPORTAR_A\`. Tres líneas: qué quedó hecho, qué
+falta, qué necesitás. Es el único aviso que va a recibir; no está mirando tu pantalla. Esa sesión no
+figura en tu \`ListAgents\` —está en otra máquina— y aun así la dirección entrega."
+fi
 
 # --- otra máquina de la flota -----------------------------------------------
 # El trabajo entero pasa allá: este script se copia a sí mismo por ssh y corre del otro lado, contra
@@ -95,7 +116,13 @@ if [ -n "$HOST" ]; then
   ssh -o BatchMode=yes "$HOST" "cat > $SCRIPT_REMOTO" < "$0" \
     || { echo "error: no se pudo subir el script a $HOST" >&2; exit 70; }
 
-  ARGS="--repo $(printf '%q' "$REPO")"
+  # Una sesión en otra máquina no la ve `ListAgents` ni la alcanza `SendMessage`: el registro de la
+  # cuenta es lo que la vuelve direccionable, y sube por una conexión saliente, así que no le hace
+  # falta que la Mac sea alcanzable de vuelta (no lo es: entra NATeada por la VPN).
+  if [ -z "$RC_NOMBRE" ]; then
+    RC_NOMBRE="$HOST-$(basename "$REPO" | tr ' ._:/' '-----' | cut -c1-20)-$(od -An -N2 -tx1 /dev/urandom | tr -d ' \n')"
+  fi
+  ARGS="--repo $(printf '%q' "$REPO") --remote-control $(printf '%q' "$RC_NOMBRE")"
   if [ -n "$BRIEF" ]; then
     # El brief viaja por archivo también en el salto: metido en la línea de ssh lo mastican dos
     # shells seguidos (el local y el remoto) y los acentos y comillas no sobreviven.
@@ -118,14 +145,14 @@ if [ -n "$HOST" ]; then
   ssh -o BatchMode=yes "$HOST" "rm -f $SCRIPT_REMOTO" >/dev/null 2>&1 || true
 
   echo "host: $HOST"
-  # El nombre sale renombrado a propósito: `claude agents` y `SendMessage` sólo ven las sesiones de
-  # ESTA máquina, así que el nombre que le tocó allá no es una dirección desde acá — dejarlo como
-  # `nombre:` invita a mandarle un mensaje que no llega a ningún lado.
-  printf '%s\n' "$SALIDA_REMOTA" | sed 's/^nombre:/nombre_remoto:/; s/^nombre_repetido:/nombre_remoto_repetido:/'
+  # El nombre que le tocó del otro lado es local a esa máquina y no direcciona nada desde acá; la
+  # dirección buena es el nombre con que se registró en la cuenta.
+  printf '%s\n' "$SALIDA_REMOTA" | sed '/^nombre_repetido:/d; s/^nombre:/nombre_alla:/'
+  echo "nombre: $RC_NOMBRE"
   DIR_REMOTA="$(printf '%s\n' "$SALIDA_REMOTA" | sed -n 's/^direccion_tmux: //p')"
   if [ -n "$DIR_REMOTA" ] && [ "$DIR_REMOTA" != "—" ]; then
-    echo "hablarle: ssh $HOST 'tmux send-keys -t $DIR_REMOTA \"texto\" Enter'"
     echo "leerle: ssh $HOST 'tmux capture-pane -p -t $DIR_REMOTA'"
+    echo "hablarle_por_tmux: ssh $HOST 'tmux send-keys -t $DIR_REMOTA \"texto\" Enter'"
   fi
   # La bitácora es la única prueba de que el brief entró, y vive en el disco de la otra máquina.
   SID_REMOTO="$(printf '%s\n' "$SALIDA_REMOTA" | sed -n 's/^session_id: //p')"
@@ -199,6 +226,7 @@ UUID="$(python3 -c 'import uuid;print(uuid.uuid4())')"
 # también saltea el "¿confiás en esta carpeta?" que dejaba sesiones trabadas en repos nuevos.
 CLAUDE_BIN="claude --dangerously-skip-permissions"
 [ -n "$MODEL" ] && CLAUDE_BIN="$CLAUDE_BIN --model $MODEL"
+[ -n "$RC_NOMBRE" ] && CLAUDE_BIN="$CLAUDE_BIN --remote-control \"$RC_NOMBRE\""
 BRIEFFILE=""
 CMD="$CLAUDE_BIN --session-id $UUID"
 if [ -n "$BRIEF" ]; then
